@@ -1,11 +1,13 @@
 const express = require('express')
 const mongoose = require('mongoose');
 
-const dev = false;
+const dev = true;
 
 if(dev) require('dotenv').config();
+
 const app = express()
 const port = process.env.PORT || 3000
+const defaultRouter = require('./routes/default.route');
 
 //Connessione DB
 const dbCredentials = {
@@ -19,23 +21,7 @@ mongoose.connect(mongoAtlasUri, (err) => {
   if(!err) console.log('Connessione DB riuscita')
 });
 
-const startingEndpoint = '/api/';
-
-app.get(`${startingEndpoint}:anno/:mese/:giorno/`, (req, res) => {
-  const { anno, mese, giorno } = req.params;
-
-  res.send(`Anno selezionato: ${anno}, mese: ${mese}, giorno: ${giorno}`);
-})
-
-/*app.get(`${startingEndpoint}:anno/:mese`, (req, res) => {
-  const { anno, mese } = req.params;
-  res.send(`Anno selezionato: ${anno}, mese: ${mese}`);
-})
-
-app.get(`${startingEndpoint}:anno`, (req, res) => {
-  const { anno } = req.params;
-  res.send(`Anno selezionato: ${anno}`);
-})*/
+app.use('/', defaultRouter);
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
