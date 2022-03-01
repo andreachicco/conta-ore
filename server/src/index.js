@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose');
 
-const dev = true;
+const dev = false;
 
 if(dev) require('dotenv').config();
 
