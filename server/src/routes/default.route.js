@@ -1,14 +1,23 @@
 const express = require('express');
+const authenticationMiddleware = require('../middlewares/auth.midlleware');
+const Year = require('../models/anno.model');
 const defaultRouter = express.Router();
 
-const calendarModel = require('../models/calendar.model');
+defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (req, res) => {
 
-const startingEndpoint = '/api/';
+  /*const limit = req.query.limit || 0;
+  const offset = req.query.offset || 0;*/
 
-defaultRouter.get(`${startingEndpoint}anno/:anno/mese/:mese/giorno/:giorno/`, (req, res) => {
-  const { anno, mese, giorno } = req.params;
+  const allYears = await Year.find({});
+  //console.log(allYears);
 
-  res.send(`Anno selezionato: ${anno}, mese: ${mese}, giorno: ${giorno}`);
+  res.status(200).json(allYears);
+})
+
+defaultRouter.get(`/years/:year`, (req, res) => {
+  const { year } = req.params;
+
+  res.send(`Anno selezionato: ${year}`);
 })
 
 module.exports = defaultRouter;
