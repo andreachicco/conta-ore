@@ -10,6 +10,10 @@ const defaultRouter = require('./routes/default.route');
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', defaultRouter);
 
+app.get('/', (req, res) => {
+  res.redirect('/api/v1/auth');
+})
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })
