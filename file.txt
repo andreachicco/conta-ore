@@ -1,0 +1,72 @@
+const annoModel = require('../models/anno.model');
+
+
+
+const checkParams = (anno, mese, giorno) => {
+  return anno != 0 && mese != 0 && giorno != 0;
+}
+
+defaultRouter.post(`${startingEndpoint}anno/:anno/mese/:mese/giorno/:giorno/`, async (req, res) => {
+  const { anno, mese, giorno } = req.params;
+  const isValidDate = checkParams(anno, mese, giorno);
+
+  if(!isValidDate) res.status(404).send('Parametri non validi');
+
+  const foundYear = await AnnoModel.findOne({ anno: anno });
+  
+  if(!foundYear) {
+    
+    const newYear = {
+      anno: parseInt(anno),
+      mesi: []
+    }
+
+    const newMonth = {
+      mese: parseInt(mese),
+      giorni: []
+    }
+
+    const newDay = {
+      giorno: parseInt(giorno),
+      ore: 0
+    }
+
+    newMonth.giorni.push(newDay);
+    newYear.mesi.push(newMonth);
+
+    const newEntry = new AnnoModel(newYear);
+
+    try {
+      
+      await newEntry.save()
+      console.log('Nuovo anno inserito');
+
+    } catch (error) {
+
+      res.send(error);
+
+    }
+    
+    res.send(newYear);
+  }
+  else res.json(foundYear);
+
+  /*
+  const newYear = {
+    anno: anno,
+    mesi: [
+      {
+        mese: mese,
+        giorni: [
+          {
+            giorno: giorno,
+            ore: 0
+          }
+        ]
+      }
+    ]
+  }
+
+  res.json(newYear);*/
+
+});
