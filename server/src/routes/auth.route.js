@@ -9,7 +9,9 @@ authRouter.get('/', async (req, res) => {
 
     const newToken = Authentication.generateToken(tempRandom);
 
-    res.send(newToken);
+    res.json({
+        token: newToken,
+    });
 });
 
 module.exports = authRouter;

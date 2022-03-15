@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const Year = require('./models/anno.model');
 
-const dev = false;
+const dev = true;
 
 if(dev) require('dotenv').config();
 
@@ -27,6 +28,32 @@ class DataBase {
             DataBase.instance = this;
         }
 
+    }
+
+    async getAllYears() {
+        const allYears = await Year.find({});
+        return allYears;
+    }
+
+    async getYear(yearId) {
+        const requestedYear = await Year.findOne({ _id: yearId });
+        return requestedYear;
+    }
+
+    async getAllMonthsByYearId(yearId) {
+        const requestedYear = await this.getYear(yearId);
+
+        const months = requestedYear.months;
+
+        return months;
+    }
+
+    async getMonthByYear(yearId, monthId) {
+        const months = await this.getAllMonthsByYearId(yearId);
+        
+        const requestedMonth = months.find(month => month._id == monthId);
+        
+        return requestedMonth;
     }
 }
 
