@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Year = require('./models/anno.model');
 
-const dev = true;
+const dev = false;
 
 if(dev) require('dotenv').config();
 
