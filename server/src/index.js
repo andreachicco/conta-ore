@@ -1,7 +1,13 @@
 const express = require('express')
+const helmet = require('helmet');
+const cors = require('cors');
 const dataBase = require('./dataBase');
 
 const app = express()
+
+app.use(helmet());
+app.use(cors());
+
 const port = process.env.PORT || 3000
 
 const authRouter = require('./routes/auth.route');
