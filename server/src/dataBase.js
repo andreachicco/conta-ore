@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
-const Year = require('./models/anno.model');
 
-const dev = false;
+const STATES = require('./states');
+const Year = require('./models/anno.model');
+const Shift = require('./models/shift.model');
+
+const dev = true;
 
 if(dev) require('dotenv').config();
 
@@ -54,6 +57,21 @@ class DataBase {
         const requestedMonth = months.find(month => month._id == monthId);
         
         return requestedMonth;
+    }
+
+    async insertShift(shift) {
+
+        const shiftAlreadyExists = await Shift.findOne({ number: shift.number, type: shift.type });
+
+        if(shiftAlreadyExists) {
+            console.log('Già esistente');
+            return STATES.ALREADY_EXISTS;
+        }
+
+        const newShift = new Shift(shift);
+        const inserted = await newShift.save();
+        console.log(inserted);
+        return STATES.SUCCESS;
     }
 }
 
