@@ -1,31 +1,40 @@
 const express = require('express');
 const dataBase = require('../dataBase');
+const STATUS_CODES = require('../statusCodes');
 const authenticationMiddleware = require('../middlewares/auth.midlleware');
 
 const defaultRouter = express.Router();
 
-defaultRouter.get('/', (req, res) => {
-  res.redirect('/api/v1/auth');
-});
-
 defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (req, res) => {
 
-  const allYears = await dataBase.getAllYears();
+  const selected = await dataBase.getAllYears();
+  const { code, years } = selected;
 
-  if(allYears) res.status(200).json(allYears);
-  else res.sendStatus(404);
+  if(code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json(years);
+  else res.sendStatus(STATUS_CODES.BAD_REQUEST);
 });
 
-defaultRouter.get(`/years/:year`, authenticationMiddleware.authenticateToken, async (req, res) => {
-  const { year } = req.params;
+defaultRouter.get(`/years/:yearId`, authenticationMiddleware.authenticateToken, async (req, res) => {
+  const { yearId } = req.params;
 
-  const requestedYear = await dataBase.getYear(year);
+  const requestedYear = await dataBase.getYearById(yearId);
 
-  if(requestedYear) res.status(200).json(requestedYear);
-  else res.sendStatus(404);
+  switch(requestedYear) {
+    case STATUS_CODES.BAD_REQUEST: 
+      res.sendStatus(STATUS_CODES.BAD_REQUEST);
+      break;
+    case STATUS_CODES.NOT_FOUND:
+      res.sendStatus(STATUS_CODES.NOT_FOUND);
+      break;
+    default: 
+      const year = requestedYear.year; 
+      res.status(STATUS_CODES.OK).json(year);
+      break;
+  }
+
 });
 
-defaultRouter.get(`/years/:year/months/`, authenticationMiddleware.authenticateToken, async (req, res) => {
+/*defaultRouter.get(`/years/:year/months/`, authenticationMiddleware.authenticateToken, async (req, res) => {
   const { year } = req.params;
 
   const allMonths = await dataBase.getAllMonthsByYear(year);
@@ -41,6 +50,6 @@ defaultRouter.get(`/years/:year/months/:month`, authenticationMiddleware.authent
 
   if(requestedMonth) res.status(200).json(requestedMonth);
   else res.sendStatus(404);
-});
+});*/
 
 module.exports = defaultRouter;

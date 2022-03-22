@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const STATES = require('./states');
 const Year = require('./models/anno.model');
 const Shift = require('./models/shift.model');
+const STATUS_CODES = require('./statusCodes');
 
-const dev = false;
+const dev = true;
 
 if(dev) require('dotenv').config();
 
@@ -33,17 +33,44 @@ class DataBase {
 
     }
 
+    //Metodi per ricavare/inserire Anni
     async getAllYears() {
-        const allYears = await Year.find({});
-        return allYears;
+
+        try {
+
+            const allYears = await Year.find({});
+            return {
+                code: STATUS_CODES.OK,
+                years: allYears
+            };
+
+        } catch (error) {
+            console.error(error);
+            return STATUS_CODES.BAD_REQUEST;
+        }
     }
 
-    async getYear(yearId) {
-        const requestedYear = await Year.findOne({ _id: yearId });
-        return requestedYear;
+    async getYearById(yearId) {
+        
+        console.log(yearId);
+        
+        try {
+            const requestedYear = await Year.findById(yearId);
+            // requestedYear = await Year.findOne({ _id: yearId });
+
+            if(requestedYear) return {
+                code: STATUS_CODES.OK,
+                year: requestedYear
+            }
+            
+        } catch (error) {
+            console.error(error);
+            return STATUS_CODES.NOT_FOUND;
+            //return STATUS_CODES.BAD_REQUEST;
+        }
     }
 
-    async getAllMonthsByYearId(yearId) {
+    /*async getAllMonthsByYearId(yearId) {
         const requestedYear = await this.getYear(yearId);
 
         const months = requestedYear.months;
@@ -57,29 +84,42 @@ class DataBase {
         const requestedMonth = months.find(month => month._id == monthId);
         
         return requestedMonth;
-    }
+    } */
 
-    async getShifts() {
-        const shifts = await Shift.find({});
 
-        if(shifts) return shifts;
-        else return STATES.NOT_FOUND
+    //Metodi per ricavare/inserire Turni Lavorativi
+    async getAllShifts() {
+        try {
+
+            const shifts = await Shift.find({});
+            return {
+                code: STATUS_CODES.OK,
+                shifts: shifts
+            };
+
+        } catch (error) {
+            console.error(error);
+            return STATUS_CODES.BAD_REQUEST;
+        }
     }
 
     //Inserimento turtno lavorativo
     async insertShift(shift) {
 
-        const shiftAlreadyExists = await Shift.findOne({ number: shift.number, type: shift.type });
+        try {
 
-        if(shiftAlreadyExists) {
-            console.log('Già esistente');
-            return STATES.ALREADY_EXISTS;
+            //Turno lavorativo già esistente
+            const shiftAlreadyExists = await Shift.findOne({ number: shift.number, type: shift.type });
+            if(shiftAlreadyExists) return STATUS_CODES.CONFLICT;
+
+            //Aggiunta turno al DB
+            const newShift = new Shift(shift);
+            await newShift.save();
+            return STATUS_CODES.CREATED;
+        } catch (error) {
+            console.error(error);
+            return STATUS_CODES.BAD_REQUEST;
         }
-
-        const newShift = new Shift(shift);
-        const inserted = await newShift.save();
-        console.log(inserted);
-        return STATES.SUCCESS;
     }
 }
 

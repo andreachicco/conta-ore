@@ -1,6 +1,8 @@
 const express = require('express')
 const helmet = require('helmet');
 const cors = require('cors');
+const morgan = require('morgan');
+
 const dataBase = require('./dataBase');
 
 const app = express()
@@ -9,8 +11,7 @@ const app = express()
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
-
-const port = process.env.PORT || 3000
+app.use(morgan('tiny'));
 
 //Routes
 const authRouter = require('./routes/auth.route');
@@ -26,6 +27,8 @@ app.get('/', (req, res) => {
   res.redirect('/api/v1/auth');
 })
 
+//Ascolto del server sulla porta scelta
+const port = process.env.PORT || 3000
 app.listen(port, () => {
   console.log(`Server in ascolto sulla porta ${port}`)
 })
