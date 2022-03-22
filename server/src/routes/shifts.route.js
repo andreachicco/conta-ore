@@ -5,10 +5,11 @@ const dataBase = require('../dataBase');
 const shiftsRouter = express.Router();
 
 shiftsRouter.get('/shifts', async (req, res) => {
+    const shifts = await dataBase.getShifts();
+    
+        if(shifts === STATES.NOT_FOUND) res.status(404).json({ message: 'Nessun turno trovato' });
+        else res.status(200).json(shifts);
 
-    res.json({
-        message: 'Turni lavorativi'
-    })
 });
 
 shiftsRouter.post('/shifts', async (req, res) => {
@@ -23,8 +24,13 @@ shiftsRouter.post('/shifts', async (req, res) => {
 
     const inserted = await dataBase.insertShift(newShift);
 
-    if(inserted === STATES.SUCCESS) res.status(200).json({ message: 'Elemento inserito' });
-    else res.status(409).send("Errore");
+    switch(inserted) {
+        case STATES.SUCCESS:
+            res.status(200).json({ message: 'Elemento inserito' });
+            break;
+        case STATES.ALREADY_EXISTS:
+            res.status(409).jsonp({ message: 'Elemento già inserito' });
+    }
 });
 
 module.exports = shiftsRouter;

@@ -3,6 +3,8 @@ const express = require('express');
 
 const authRouter = express.Router();
 
+//TODO: Aggiungere sistema di login
+
 authRouter.get('/', async (req, res) => {
 
     const tempRandom = Math.random();

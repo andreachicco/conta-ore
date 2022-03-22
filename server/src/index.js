@@ -5,12 +5,14 @@ const dataBase = require('./dataBase');
 
 const app = express()
 
+//Middlewares
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
 
 const port = process.env.PORT || 3000
 
+//Routes
 const authRouter = require('./routes/auth.route');
 const yearsRouter = require('./routes/years.route');
 const shiftsRouter = require('./routes/shifts.route');
@@ -19,6 +21,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', yearsRouter);
 app.use('/api/v1', shiftsRouter);
 
+//Default route -> Riporta alla route di autenticazione
 app.get('/', (req, res) => {
   res.redirect('/api/v1/auth');
 })

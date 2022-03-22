@@ -4,13 +4,13 @@ const STATES = require('./states');
 const Year = require('./models/anno.model');
 const Shift = require('./models/shift.model');
 
-const dev = true;
+const dev = false;
 
 if(dev) require('dotenv').config();
 
 class DataBase {
 
-    //Connessione DB
+    //Credenziali DataBase
     dbCredentials = {
         username: process.env.DBUSERNAME,
         password: process.env.DBPASSWORD,
@@ -59,6 +59,14 @@ class DataBase {
         return requestedMonth;
     }
 
+    async getShifts() {
+        const shifts = await Shift.find({});
+
+        if(shifts) return shifts;
+        else return STATES.NOT_FOUND
+    }
+
+    //Inserimento turtno lavorativo
     async insertShift(shift) {
 
         const shiftAlreadyExists = await Shift.findOne({ number: shift.number, type: shift.type });
