@@ -14,6 +14,12 @@ shiftsRouter.get('/shifts', async (req, res) => {
 
 });
 
+shiftsRouter.get('/shifts/:shift', async (req, res) => {
+    const { shift } = req.params;
+
+    
+});
+
 shiftsRouter.post('/shifts', async (req, res) => {
     const { shiftNumber, shiftType, from, to } = req.body;
 

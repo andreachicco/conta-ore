@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const Year = require('./models/anno.model');
 const Shift = require('./models/shift.model');
+const User = require('./models/user.model');
+
+const Authentication = require('./auth');
+
 const STATUS_CODES = require('./statusCodes');
 
 const dev = true;
@@ -31,6 +35,26 @@ class DataBase {
             DataBase.instance = this;
         }
 
+    }
+
+    async insertUser(user) {
+        const newUser = new User(user);
+        await newUser.save();
+
+        return STATUS_CODES.OK;
+    }
+
+    async getUser(user) {
+
+        const selectedUser = await User.findOne({ username: user.username });
+
+        if(selectedUser) {
+            const compared = await Authentication.checkPassword(user.password, selectedUser.password);
+
+            if(compared) return user;
+            else return STATUS_CODES.UNAUTHORIZED;
+        }
+        else return STATUS_CODES.NOT_FOUND;
     }
 
     //Metodi per ricavare/inserire Anni
