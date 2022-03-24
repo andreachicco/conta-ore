@@ -38,6 +38,10 @@ const monthSchema = new Schema({
         type: Number,
         required: true
     },
+    total_minutes: {
+        type: String,
+        default: 0
+    },
     name: {
         type: String,
         required: true
