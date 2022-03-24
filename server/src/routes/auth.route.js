@@ -6,8 +6,6 @@ const STATUS_CODES = require('../statusCodes');
 
 const authRouter = express.Router();
 
-//TODO: Aggiungere sistema di login
-
 authRouter.post('/register', async (req, res) => {
     const { username, privileges, password } = req.body;
 
@@ -31,8 +29,7 @@ authRouter.post('/login', async (req, res) => {
         password: password
     };
 
-    const selectedUser = await dataBase.getUser(user);
-    console.log(selectedUser);
+    const selectedUser = await dataBase.verifyUser(user);
 
     switch(selectedUser) {
         case STATUS_CODES.BAD_REQUEST: 
@@ -51,7 +48,7 @@ authRouter.post('/login', async (req, res) => {
     
 });
 
-authRouter.get('/', async (req, res) => {
+/*authRouter.get('/', async (req, res) => {
 
 
     const tempRandom = Math.random();
@@ -61,6 +58,6 @@ authRouter.get('/', async (req, res) => {
     res.json({
         token: newToken,
     });
-});
+});*/
 
 module.exports = authRouter;

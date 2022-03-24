@@ -8,7 +8,7 @@ const Authentication = require('./auth');
 
 const STATUS_CODES = require('./statusCodes');
 
-const dev = true;
+const dev = false;
 
 if(dev) require('dotenv').config();
 
@@ -44,9 +44,13 @@ class DataBase {
         return STATUS_CODES.OK;
     }
 
-    async getUser(user) {
+    async getUser(username) {
+        return User.findOne({ username: username });
+    }
 
-        const selectedUser = await User.findOne({ username: user.username });
+    async verifyUser(user) {
+
+        const selectedUser = await this.getUser(user.username);
 
         if(selectedUser) {
             const compared = await Authentication.checkPassword(user.password, selectedUser.password);
@@ -129,7 +133,7 @@ class DataBase {
 
     //Inserimento turtno lavorativo
     async insertShift(shift) {
-
+        console.log(shift);
         try {
 
             //Turno lavorativo già esistente

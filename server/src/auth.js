@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const STATUS_CODES = require('./statusCodes');
+const dataBase = require('./dataBase');
 
 class Authentication {
 
@@ -26,17 +27,9 @@ class Authentication {
         return jwt.sign(username, this.getSecretKey());
     }
 
-    static authenticateToken(token, req, res, next) {
-        jwt.verify(token, this.getSecretKey(), (err) => {
-
-            if(err) {
-                //Il token inserito non è valido -> Non Autorizzato
-                console.error('Errore durante verifica token. ', err);
-                return res.sendStatus(STATUS_CODES.UNAUTHORIZED);
-            }
-
-            next();
-        });
+    static async getTokenData(token) {
+        const tokenData = jwt.verify(token, this.getSecretKey());
+        return tokenData;
     }
 }
 
