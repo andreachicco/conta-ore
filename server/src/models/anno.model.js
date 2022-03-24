@@ -2,27 +2,48 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const daySchema = new Schema({
-    day_index: {
+const extraordinarySchema = new Schema({
+    number: {
         type: Number,
-        required: true
+        default: 0
     },
-    day_name: {
+    type: String,
+    from: {
         type: String,
-        required: true
+        default: 0,
     },
-    hours: {
+    to: {
+        type: String,
+        default: 0
+    },
+    total_minutes: {
         type: Number,
         default: 0
     }
-});
+})
 
-const monthSchema = new Schema({
-    month_index: {
+const daySchema = new Schema({
+    index: {
         type: Number,
         required: true
     },
-    month_name: {
+    name: {
+        type: String,
+        required: true
+    },
+    extraordinary: extraordinarySchema
+});
+
+const monthSchema = new Schema({
+    index: {
+        type: Number,
+        required: true
+    },
+    total_minutes: {
+        type: String,
+        default: 0
+    },
+    name: {
         type: String,
         required: true
     },

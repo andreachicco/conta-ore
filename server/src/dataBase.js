@@ -84,8 +84,6 @@ class DataBase {
 
     async getYearById(yearId) {
         
-        console.log(yearId);
-        
         try {
             const requestedYear = await Year.findById(yearId);
             // requestedYear = await Year.findOne({ _id: yearId });
@@ -99,6 +97,23 @@ class DataBase {
             console.error(error);
             return STATUS_CODES.NOT_FOUND;
             //return STATUS_CODES.BAD_REQUEST;
+        }
+    }
+
+    async updateDay(yearId, monthId, dayId, newShift) {
+
+        try {
+            const selectedYear = await Year.findById(yearId);
+    
+            const selectedMonth = selectedYear.months.find(month => month._id == monthId);
+            const selectedDay = selectedMonth.days.find(day => day._id == dayId);
+            selectedDay.extraordinary = newShift;
+            
+            await selectedYear.save();
+
+            return STATUS_CODES.OK;
+        } catch (error) {
+            return STATUS_CODES.BAD_REQUEST;
         }
     }
 

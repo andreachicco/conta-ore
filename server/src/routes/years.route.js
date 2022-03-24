@@ -34,6 +34,53 @@ defaultRouter.get(`/years/:yearId`, authenticationMiddleware.authenticateToken, 
 
 });
 
+defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, res) => {
+  const { yearId, monthId, dayId } = req.params;
+
+  const { number, type, from, to } = req.body;
+
+  const newShift = {
+    number: number,
+    type: type,
+    from: from,
+    to: to
+  }
+
+  const fromHour = parseInt(from.split(':')[0]);
+  const fromMinutes = parseInt(from.split(':')[1])
+  const fromTotalMinutes = (fromHour * 60) + fromMinutes;
+
+  const toHour = parseInt(to.split(':')[0]);
+  const toMinutes = parseInt(to.split(':')[1])
+  const toTotalMinutes = (toHour * 60) + toMinutes;
+
+  /*const h = Math.floor(fromTotalMinutes / 60);
+  const m = fromTotalMinutes % 60;
+  console.log(h, m);*/
+
+  let totalMinutes = 0;
+
+  if(fromTotalMinutes > toTotalMinutes) {
+    const dayTotalMinutes = 24 * 60;
+
+    totalMinutes = dayTotalMinutes - (fromTotalMinutes - toTotalMinutes);
+    /*const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    console.log(h, m);*/
+
+  }
+  else totalMinutes = toTotalMinutes - fromTotalMinutes;
+    /*const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    console.log(h, m);
+  }*/
+
+
+  const response = await dataBase.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: totalMinutes});
+
+  res.sendStatus(response);
+});
+
 /*defaultRouter.get(`/years/:year/months/`, authenticationMiddleware.authenticateToken, async (req, res) => {
   const { year } = req.params;
 
