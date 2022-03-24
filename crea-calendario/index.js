@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const generateCalendar = require('./calendarGenerator');
 const { connString } = require('./config');
 const Year = require('./calendar.model');
+const { exit } = require('process');
 
 const year = process.argv[2];
 const startingDay = process.argv[3]
@@ -13,4 +14,7 @@ mongoose.connect(connString, (err) => {
 })
 
 const newYear = new Year(actualYear);
-newYear.save().then(() => console.log('Salvato'));
+newYear.save().then(() => {
+    console.log('Salvato');
+    exit();
+});
