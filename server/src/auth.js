@@ -28,8 +28,12 @@ class Authentication {
     }
 
     static async getTokenData(token) {
-        const tokenData = jwt.verify(token, this.getSecretKey());
-        return tokenData;
+        try {
+            const tokenData = jwt.verify(token, this.getSecretKey());
+            return tokenData;
+        } catch (error) {
+            return STATUS_CODES.UNAUTHORIZED;
+        }
     }
 }
 

@@ -53,10 +53,14 @@ class DataBase {
         const selectedUser = await this.getUser(user.username);
 
         if(selectedUser) {
-            const compared = await Authentication.checkPassword(user.password, selectedUser.password);
-
-            if(compared) return user;
-            else return STATUS_CODES.UNAUTHORIZED;
+            try {
+                const compared = await Authentication.checkPassword(user.password, selectedUser.password);
+    
+                if(compared) return user;
+                else return STATUS_CODES.UNAUTHORIZED;
+            } catch (error) {
+                return STATUS_CODES.BAD_REQUEST;
+            }
         }
         else return STATUS_CODES.NOT_FOUND;
     }
