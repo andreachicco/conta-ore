@@ -7,6 +7,7 @@ const extraordinarySchema = new Schema({
         type: Number,
         default: 0
     },
+    type: String,
     from: {
         type: Number,
         default: 0,
@@ -15,7 +16,7 @@ const extraordinarySchema = new Schema({
         type: Number,
         default: 0
     },
-    total_hours: {
+    total_minutes: {
         type: Number,
         default: 0
     }
