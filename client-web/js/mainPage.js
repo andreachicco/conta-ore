@@ -73,7 +73,9 @@ function renderMonth(monthToRender) {
 function renderShiftOptions(isEmpty, shiftNumber = null) {
 
     let html = ``;
-    isEmpty ? html = `<option selected>Seleziona</option>` : null;
+    isEmpty ? html = `<option value="nullo" selected>Seleziona</option>` : html = `<option value="nullo">Seleziona</option>`;
+
+    console.log(html);
 
     shifts.map(shift => {
         if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
@@ -120,8 +122,6 @@ function renderDay(dayToRender, monthName, year) {
             event.preventDefault();
             const target = event.target;
 
-            const targetId = target.value;
-            
             const parentElement = target.parentElement;
             const dayListElement = target.parentElement.parentElement.parentElement;
             const monthElement = dayListElement.parentElement.parentElement;
@@ -129,12 +129,39 @@ function renderDay(dayToRender, monthName, year) {
             const month = monthElement.dataset.monthId;
             const day = dayListElement.dataset.dayId;
 
+            const from = parentElement.querySelector('.from');
+            const to = parentElement.querySelector('.to');
+
+            const targetId = target.value;
+
+            if(targetId == 'nullo') {
+                from.innerText = `Da: `;
+                to.innerText = `A: `;
+
+                const nullShift = {
+                    number: 0,
+                    from: 0, 
+                    to: 0,
+                    total_minutes: 0
+                }
+
+                await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+                    method: 'PATCH',
+                    headers: {
+                        authorization: jwtToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(nullShift),
+                });
+
+                return;
+            }
+
             const selectedShift = shifts.find(shift => shift._id === targetId);
             
             const { from: shiftFrom, to: shiftTo } = selectedShift;
             
-            const from = parentElement.querySelector('.from');
-            const to = parentElement.querySelector('.to');
             
             if(selectedShift){
                 from.innerText = `Da: ${shiftFrom}`;
