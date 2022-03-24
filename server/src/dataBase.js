@@ -103,15 +103,23 @@ class DataBase {
     async updateDay(yearId, monthId, dayId, newShift) {
 
         try {
-            const selectedYear = await Year.findById(yearId);
+            const selectedYear = await this.getYearById(yearId);
     
-            const selectedMonth = selectedYear.months.find(month => month._id == monthId);
+            const selectedMonth = selectedYear.year.months.find(month => month._id == monthId);
             const selectedDay = selectedMonth.days.find(day => day._id == dayId);
             selectedDay.extraordinary = newShift;
-            
-            await selectedYear.save();
 
-            return STATUS_CODES.OK;
+            let totalMinutes = 0;
+            selectedMonth.days.forEach(day => totalMinutes += day.extraordinary.total_minutes);
+
+            selectedMonth.total_minutes = totalMinutes;
+            
+            await selectedYear.year.save();
+
+            return {
+                code: STATUS_CODES.OK,
+                month: selectedMonth
+            };
         } catch (error) {
             return STATUS_CODES.BAD_REQUEST;
         }

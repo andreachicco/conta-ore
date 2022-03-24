@@ -62,9 +62,6 @@ defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, re
       const dayTotalMinutes = 24 * 60;
   
       totalMinutes = dayTotalMinutes - (fromTotalMinutes - toTotalMinutes);
-      /*const h = Math.floor(totalMinutes / 60);
-      const m = totalMinutes % 60;
-      console.log(h, m);*/
   
     }
     else totalMinutes = toTotalMinutes - fromTotalMinutes;
@@ -74,18 +71,8 @@ defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, re
     response = await dataBase.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: 0});
   }
 
-  /*const h = Math.floor(fromTotalMinutes / 60);
-  const m = fromTotalMinutes % 60;
-  console.log(h, m);*/
-
-    /*const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    console.log(h, m);
-  }*/
-
-
-  res.sendStatus(response);
-
+  if(response.code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json({ month: response.month });
+  else res.sendStatus(response);
 });
 
 /*defaultRouter.get(`/years/:year/months/`, authenticationMiddleware.authenticateToken, async (req, res) => {

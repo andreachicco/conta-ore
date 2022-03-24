@@ -53,6 +53,14 @@ function capitalizeFirstLetter(word) {
     return word[0].toUpperCase() + word.substring(1);
 }
 
+function getHourFromMinutes(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+
+    if(h === 0 && m === 0) return '0';
+    else return `${h}:${m}`;
+}
+
 function renderMonth(monthToRender) {
     const { name: monthName, _id: monthId, index, total_minutes } = monthToRender;
         
@@ -61,7 +69,7 @@ function renderMonth(monthToRender) {
         <li data-month-id="${monthId}" class="month mt-1">
             <div class="month-info d-flex flex-column align-items-center justify-content-center ${index}">
                 <h5 class="month-name">${capitalizeFirstLetter(monthName)}</h5>
-                <p class="total-hour">Ore totali: ${total_minutes}</p>
+                <p class="total-hour ${monthName}">Ore totali: ${getHourFromMinutes(total_minutes)}</p>
             </div>
             <ul class="list-group inner days-list" id="${monthName}">
 
@@ -73,9 +81,7 @@ function renderMonth(monthToRender) {
 function renderShiftOptions(isEmpty, shiftNumber = null) {
 
     let html = ``;
-    isEmpty ? html = `<option value="nullo" selected>Seleziona</option>` : html = `<option value="nullo">Seleziona</option>`;
-
-    console.log(html);
+    html = isEmpty ? `<option value="nullo" selected>Seleziona</option>` : `<option value="nullo">Seleziona</option>`;
 
     shifts.map(shift => {
         if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
@@ -134,6 +140,7 @@ function renderDay(dayToRender, monthName, year) {
 
             const targetId = target.value;
 
+            
             if(targetId == 'nullo') {
                 from.innerText = `Da: `;
                 to.innerText = `A: `;
@@ -145,7 +152,7 @@ function renderDay(dayToRender, monthName, year) {
                     total_minutes: 0
                 }
 
-                await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+                const nullResponse = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
                     method: 'PATCH',
                     headers: {
                         authorization: jwtToken,
@@ -155,6 +162,12 @@ function renderDay(dayToRender, monthName, year) {
                     body: JSON.stringify(nullShift),
                 });
 
+                if(nullResponse) {
+                    const responseMonth = nullResponse.month;
+                    const monthHoursElement = document.querySelector(`.${responseMonth.name}`);
+                    monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
+                }
+                
                 return;
             }
 
@@ -174,7 +187,7 @@ function renderDay(dayToRender, monthName, year) {
             
             //TODO RICHIESTE AL SERVER PER AGGIORNARE I DATI
             
-            await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+            const response = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
                 method: 'PATCH',
                 headers: {
                     authorization: jwtToken,
@@ -183,6 +196,13 @@ function renderDay(dayToRender, monthName, year) {
                 },
                 body: JSON.stringify(selectedShift),
             });
+
+            
+            if(response) {
+                const responseMonth = response.month;
+                const monthHoursElement = document.querySelector(`.${responseMonth.name}`);
+                monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
+            }
         });
     });
 }
