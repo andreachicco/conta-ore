@@ -1,6 +1,7 @@
 import Request from "./requests.js";
 import { apiEndpoint, getUserToken } from "./config.js";
 
+let jwtToken = '';
 let years = [];
 let shifts = [];
 
@@ -53,14 +54,14 @@ function capitalizeFirstLetter(word) {
 }
 
 function renderMonth(monthToRender) {
-    const { name: monthName, _id: monthId, index } = monthToRender;
+    const { name: monthName, _id: monthId, index, total_minutes } = monthToRender;
         
     const nestedList = document.querySelector('.nested-list');
     nestedList.innerHTML += `
         <li data-month-id="${monthId}" class="month mt-1">
-            <div class="month-info ${index}">
+            <div class="month-info d-flex flex-column align-items-center justify-content-center ${index}">
                 <h5 class="month-name">${capitalizeFirstLetter(monthName)}</h5>
-                <p class="total-hour"></p>
+                <p class="total-hour">Ore totali: ${total_minutes}</p>
             </div>
             <ul class="list-group inner days-list" id="${monthName}">
 
@@ -69,12 +70,14 @@ function renderMonth(monthToRender) {
     `;
 }
 
-function renderShiftOptions() {
+function renderShiftOptions(isEmpty, shiftNumber = null) {
 
-    let html = `<option selected>Seleziona</option>`;
+    let html = ``;
+    isEmpty ? html = `<option selected>Seleziona</option>` : null;
 
-    shifts.forEach(shift => {
-        html += `<option value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
+    shifts.map(shift => {
+        if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
+        else html += `<option value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
     });
 
     return html;
@@ -83,12 +86,15 @@ function renderShiftOptions() {
 let shiftOptions = ``;
 
 function renderDay(dayToRender, monthName, year) {
-    const { name: dayName, _id: dayId } = dayToRender;
+    const { name: dayName, _id: dayId, extraordinary } = dayToRender;
+    const { _id: extraordinaryId } = extraordinary;
     const { index } = dayToRender;
     
     let newIndex = index < 10 ? "0" + index.toString() : index.toString();
     
     const daysList = document.querySelector(`#${monthName}`);
+    if(extraordinary.number) shiftOptions = renderShiftOptions(false, extraordinary.number);
+    else shiftOptions = renderShiftOptions(true);
     daysList.innerHTML += `
         <li data-day-id="${dayId}" class="day ${monthName}-${index}-${year}">
             <div class="day-container">
@@ -96,12 +102,12 @@ function renderDay(dayToRender, monthName, year) {
                     <h6 class="day-name">${capitalizeFirstLetter(dayName)}</h6>
                     <h6 class="day-index">${newIndex}</h6>
                 </div>
-                <div class="hour-info">
+                <div class="hour-info ${extraordinaryId}">
                     <select class="form-select form-control mb-1 shift-selector" id="shift-type" aria-label="Default select example">
                         ${shiftOptions}
                     </select>
-                    <p class="from">Da: </p>
-                    <p class="to">A: </p>
+                    <p class="from">Da: ${extraordinary.from}</p>
+                    <p class="to">A: ${extraordinary.to}</p>
                 </div>
             </div>
         </li>
@@ -110,34 +116,46 @@ function renderDay(dayToRender, monthName, year) {
     const shiftSelectors = document.querySelectorAll('.shift-selector');
 
     shiftSelectors.forEach(selector => {
-        selector.addEventListener('change', (event) => {
+        selector.addEventListener('change', async(event) => {
             event.preventDefault();
             const target = event.target;
 
             const targetId = target.value;
-
-            const parentElement = target.parentElement;
-            //const dayListElement = target.parentElement.parentElement.parentElement;
-            //const monthElement = dayListElement.parentElement.parentElement;
             
-            //const month = monthElement.dataset.monthId;
-            //const day = dayListElement.dataset.dayId;
+            const parentElement = target.parentElement;
+            const dayListElement = target.parentElement.parentElement.parentElement;
+            const monthElement = dayListElement.parentElement.parentElement;
+            
+            const month = monthElement.dataset.monthId;
+            const day = dayListElement.dataset.dayId;
+
             const selectedShift = shifts.find(shift => shift._id === targetId);
+            
+            const { from: shiftFrom, to: shiftTo } = selectedShift;
             
             const from = parentElement.querySelector('.from');
             const to = parentElement.querySelector('.to');
-
+            
             if(selectedShift){
-                from.innerText = `Da: ${selectedShift.from}`;
-                to.innerText = `A: ${selectedShift.to}`;
+                from.innerText = `Da: ${shiftFrom}`;
+                to.innerText = `A: ${shiftTo}`;
             }
             else {
                 from.innerText = `Da: `;
                 to.innerText = `A: `;
             }
-
+            
             //TODO RICHIESTE AL SERVER PER AGGIORNARE I DATI
-
+            
+            await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+                method: 'PATCH',
+                headers: {
+                    authorization: jwtToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selectedShift),
+            });
         });
     });
 }
@@ -215,7 +233,7 @@ async function init() {
 
     const user = getUserCredentials();
     
-    const jwtToken = await getUserToken(user);
+    jwtToken = await getUserToken(user);
 
     years = await Request.fetchData(`${apiEndpoint}/years`, {
         method: 'GET',
@@ -230,8 +248,6 @@ async function init() {
             authorization: jwtToken
         }
     });
-
-    shiftOptions = renderShiftOptions();
 
     setYearsInMenu();
 }
