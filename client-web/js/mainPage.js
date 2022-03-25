@@ -94,17 +94,17 @@ function renderShiftOptions(isEmpty, shiftNumber = null) {
 let shiftOptions = ``;
 
 function renderDay(dayToRender, monthName, year) {
-    const { name: dayName, _id: dayId, extraordinary } = dayToRender;
+    const { name: dayName, _id, extraordinary } = dayToRender;
     const { _id: extraordinaryId } = extraordinary;
     const { index } = dayToRender;
     
     let newIndex = index < 10 ? "0" + index.toString() : index.toString();
     
     const daysList = document.querySelector(`#${monthName}`);
-    if(extraordinary.number) shiftOptions = renderShiftOptions(false, extraordinary.number);
+    if(extraordinary.total_minutes !== 0) shiftOptions = renderShiftOptions(false, extraordinary.number);
     else shiftOptions = renderShiftOptions(true);
     daysList.innerHTML += `
-        <li data-day-id="${dayId}" class="day ${monthName}-${index}-${year}">
+        <li data-day-id="${_id}" class="day ${monthName}-${index}-${year}">
             <div class="day-container">
                 <div class="day-info">
                     <h6 class="day-name">${capitalizeFirstLetter(dayName)}</h6>
@@ -132,8 +132,11 @@ function renderDay(dayToRender, monthName, year) {
             const dayListElement = target.parentElement.parentElement.parentElement;
             const monthElement = dayListElement.parentElement.parentElement;
             
-            const month = monthElement.dataset.monthId;
-            const day = dayListElement.dataset.dayId;
+            const monthId = monthElement.dataset.monthId;
+            const dayId = dayListElement.dataset.dayId;
+            const actualYear = years.find(y => y._id == selectedYearId);
+            const actualMonth = actualYear.months.find(m => m._id == monthId);
+            const actualDay = actualMonth.days.find(d => d._id == dayId);
 
             const from = parentElement.querySelector('.from');
             const to = parentElement.querySelector('.to');
@@ -152,7 +155,9 @@ function renderDay(dayToRender, monthName, year) {
                     total_minutes: 0
                 }
 
-                const nullResponse = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+                actualDay.extraordinary = nullShift;
+
+                const nullResponse = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${monthId}/days/${dayId}`, {
                     method: 'PATCH',
                     headers: {
                         authorization: jwtToken,
@@ -172,6 +177,7 @@ function renderDay(dayToRender, monthName, year) {
             }
 
             const selectedShift = shifts.find(shift => shift._id === targetId);
+            actualDay.extraordinary = selectedShift;
             
             const { from: shiftFrom, to: shiftTo } = selectedShift;
             
@@ -187,7 +193,7 @@ function renderDay(dayToRender, monthName, year) {
             
             //TODO RICHIESTE AL SERVER PER AGGIORNARE I DATI
             
-            const response = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${month}/days/${day}`, {
+            const response = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${monthId}/days/${dayId}`, {
                 method: 'PATCH',
                 headers: {
                     authorization: jwtToken,

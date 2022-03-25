@@ -1,6 +1,6 @@
 import Request from "./requests.js"
 
-const apiEndpoint = 'http://localhost:3000/api/v1';
+const apiEndpoint = 'https://conta-ore-straordinari.herokuapp.com/api/v1';
 let token = '';
 
 async function getUserToken(user) {
