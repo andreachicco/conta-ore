@@ -7,8 +7,8 @@ class Request {
                 const ERROR = 'Errore nella richiesta';
                 throw new Error(ERROR);
             }
-            const data = await response.json();
-            if(data) return data;
+
+            return response;
         } catch (error) {
             console.error('Error durante il fetch delle informazioni ', error);
         }

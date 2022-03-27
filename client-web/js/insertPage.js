@@ -20,7 +20,7 @@ insertForm.addEventListener('submit', async (event) => {
             to: shiftTo
         }
 
-        const data = await Request.fetchData(`${apiUrl}/shifts`, {
+        const response = await Request.fetchData(`${apiUrl}/shifts`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -34,8 +34,10 @@ insertForm.addEventListener('submit', async (event) => {
 
         insertResult.innerText = '';
 
-        if(data) insertResult.innerText = 'Inserimento Riuscito';
+        if(response.status === 201) insertResult.innerText = 'Inserimento Riuscito';
         else insertResult.innerText = 'Inserimento NON Riuscito';
+
+        setTimeout(() => { insertResult.innerText = '' }, 2000);
 
     }
 });

@@ -160,7 +160,6 @@ class DataBase {
 
     //Inserimento turtno lavorativo
     async insertShift(shift) {
-        console.log(shift);
         try {
 
             //Turno lavorativo già esistente
@@ -170,6 +169,7 @@ class DataBase {
             //Aggiunta turno al DB
             const newShift = new Shift(shift);
             await newShift.save();
+            console.log('Turno inserito')
             return STATUS_CODES.CREATED;
         } catch (error) {
             console.error(error);

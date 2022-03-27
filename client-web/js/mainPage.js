@@ -1,64 +1,73 @@
 import Request from "./requests.js";
-import { apiEndpoint, getUserToken } from "./config.js";
 
-let jwtToken = '';
-let years = [];
+import auth from "./authentication.js"
+import apiEndpoint from "./config.js";
+import calendar from "./calendar.js";
 let shifts = [];
 
-let selectedYearId;
 
 const goUpBtn = document.querySelector('.go-up');
-
 goUpBtn.addEventListener('click', (event) => {
     event.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+function setYearsInDropDownMenu() {
+    
+    const dropDownMenu = document.querySelector('.dropdown-menu');
+    const years = calendar.getYears();
 
-function listenForClick() {
+    if(years.length !== 0) {
+        years.forEach((year) => {
+            dropDownMenu.innerHTML += `<li><a data-year-id="${year._id}" class="dropdown-item" href="#">${year.year}</a></li>`
+        });
+    }
+    else console.info('Nessun anno presente');
+
+
+    listenForYearSelection();
+}
+
+function listenForYearSelection() {
     const dropDownMenuItems = document.querySelectorAll('.dropdown-item');
 
     dropDownMenuItems.forEach(item => {
         item.addEventListener('click', (event) => {
             event.preventDefault();
-            const targetYear = event.target;
 
+            const targetYear = event.target;
+            const targetYearId = targetYear.dataset.yearId;
+
+            //Mostra il button per tornare in cima
             goUpBtn.classList.remove('hide');
 
-            const targetId = targetYear.dataset.itemId;
-            
             const dropdownBtn = document.querySelector('.dropdown-toggle');
-            dropdownBtn.value = targetId;
+            dropdownBtn.value = targetYearId;
+
+            //Imposta l'anno selezionato come testo per il button
             dropdownBtn.innerText = targetYear.innerText;
 
-            const year = years.filter(x => x._id === targetId);
-            selectedYearId = year[0]._id;
-            renderYear(year);
+            try {
+                const selectedYear = calendar.getYearById(targetYearId);
+                calendar.setSelectedYearById(targetYearId);
 
+                renderYear(selectedYear);
+            } catch (error) {
+                console.error('Errore: ', error);
+            }
         });
     });
 }
 
-function setYearsInMenu() {
+function renderYear(yearToRender) {
+
+    const { months } = yearToRender;
+
+    const monthsList = document.querySelector('.months-list');
+    monthsList.innerHTML = '';
     
-    years.forEach((year) => {
-        const dropDownMenu = document.querySelector('.dropdown-menu');
-        dropDownMenu.innerHTML += `<li><a data-item-id="${year._id}" class="dropdown-item" href="#">${year.year}</a></li>`
-    });
-
-    listenForClick();
-}
-
-function capitalizeFirstLetter(word) {
-    return word[0].toUpperCase() + word.substring(1);
-}
-
-function getHourFromMinutes(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-
-    if(h === 0 && m === 0) return '0';
-    else return `${h}:${m}`;
+    //Rendering dei mesi
+    months.forEach(month => renderMonth(month));
 }
 
 function renderMonth(monthToRender) {
@@ -76,39 +85,64 @@ function renderMonth(monthToRender) {
             </ul>
         </li>
     `;
+
+    listenForMonthSelection();
 }
 
-function renderShiftOptions(isEmpty, shiftNumber = null) {
+function listenForMonthSelection() {
+    const monthList = document.querySelectorAll('.month .month-info');
 
-    let html = ``;
-    html = isEmpty ? `<option value="nullo" selected>Seleziona</option>` : `<option value="nullo">Seleziona</option>`;
+    monthList.forEach(month => {
+        month.addEventListener('click', event => {
+            event.preventDefault();
 
-    shifts.map(shift => {
-        if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
-        else html += `<option value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
+            //Cambia colore se selezionato
+            month.classList.toggle('selected');
+
+            const selectedMonthId = month.parentElement.dataset.monthId;
+            const selectedMonth = calendar.getMonthById(calendar.getSelectedYearId(), selectedMonthId);
+
+            if(month.classList.contains('selected')) {
+                calendar.setSelectedMonthId(selectedMonthId);
+                
+                try {
+                    const { days } = selectedMonth;
+
+                    days.forEach(day => renderDay(day));
+                } catch (error) {
+                    console.log(error);
+                } 
+            }
+            else {
+                const daysList = document.querySelector(`#${selectedMonth.name}`);
+                daysList.innerHTML = '';
+            }
+        });
     });
-
-    return html;
 }
 
-let shiftOptions = ``;
-
-function renderDay(dayToRender, monthName, year) {
-    const { name: dayName, _id, extraordinary } = dayToRender;
-    const { _id: extraordinaryId } = extraordinary;
-    const { index } = dayToRender;
+function renderDay(dayToRender) {
+    const { name: dayName, _id: dayId, extraordinary, index} = dayToRender;
+    const { _id: extraordinaryId, total_miutes: shiftTotalMinutes, number: shiftNumber } = extraordinary;
     
-    let newIndex = index < 10 ? "0" + index.toString() : index.toString();
+    const year = calendar.getYearById(calendar.getSelectedYearId());
+    const { year: yearNumber } = year; 
+    
+    const month = calendar.getMonthById(calendar.getSelectedYearId(), calendar.getSelectedMonthId());
+    const { name: monthName } = month;
+    
+    const dayNumber = index < 10 ? "0" + index.toString() : index.toString();
     
     const daysList = document.querySelector(`#${monthName}`);
-    if(extraordinary.total_minutes !== 0) shiftOptions = renderShiftOptions(false, extraordinary.number);
-    else shiftOptions = renderShiftOptions(true);
+
+    const shiftOptions = (shiftTotalMinutes !== 0) ? renderShiftOptions(false, shiftNumber) : renderShiftOptions(true);
+    
     daysList.innerHTML += `
-        <li data-day-id="${_id}" class="day ${monthName}-${index}-${year}">
+        <li data-day-id="${dayId}" class="day ${monthName}-${index}-${yearNumber}">
             <div class="day-container">
                 <div class="day-info">
                     <h6 class="day-name">${capitalizeFirstLetter(dayName)}</h6>
-                    <h6 class="day-index">${newIndex}</h6>
+                    <h6 class="day-index">${dayNumber}</h6>
                 </div>
                 <div class="hour-info ${extraordinaryId}">
                     <select class="form-select form-control mb-1 shift-selector" id="shift-type" aria-label="Default select example">
@@ -121,142 +155,102 @@ function renderDay(dayToRender, monthName, year) {
         </li>
     `;
 
-    const shiftSelectors = document.querySelectorAll('.shift-selector');
+    listenForShiftSelection();
+}
 
-    shiftSelectors.forEach(selector => {
-        selector.addEventListener('change', async(event) => {
+function listenForShiftSelection() {
+    const shiftList = document.querySelectorAll('.shift-selector');
+
+    shiftList.forEach(shiftItem => {
+        shiftItem.addEventListener('change', async(event) => {
             event.preventDefault();
-            const target = event.target;
 
-            const parentElement = target.parentElement;
-            const dayListElement = target.parentElement.parentElement.parentElement;
-            const monthElement = dayListElement.parentElement.parentElement;
-            
-            const monthId = monthElement.dataset.monthId;
-            const dayId = dayListElement.dataset.dayId;
-            const actualYear = years.find(y => y._id == selectedYearId);
-            const actualMonth = actualYear.months.find(m => m._id == monthId);
-            const actualDay = actualMonth.days.find(d => d._id == dayId);
+            const selectedShift = event.target;
+            const selectedShiftId = selectedShift.value;
 
-            const from = parentElement.querySelector('.from');
-            const to = parentElement.querySelector('.to');
+            //Aggiorno l'id del mese selezionato
+            const monthId = selectedShift.closest("[data-month-id]").dataset.monthId;
+            calendar.setSelectedMonthId(monthId);
 
-            const targetId = target.value;
+            const dayId = selectedShift.closest("[data-day-id]").dataset.dayId;
+            calendar.setSelectedDayId(dayId);
 
-            
-            if(targetId == 'nullo') {
-                from.innerText = `Da: `;
-                to.innerText = `A: `;
+            const from = selectedShift.parentElement.querySelector('.from');
+            const to = selectedShift.parentElement.querySelector('.to');
 
-                const nullShift = {
-                    number: 0,
-                    from: 0, 
+            let newShift = {};
+
+            if(selectedShiftId == 'null') {
+                from.innerText = 'Da: 0';
+                to.innerText = 'A: 0';
+
+                newShift = {
+                    number: -1,
+                    from: 0,
                     to: 0,
                     total_minutes: 0
-                }
+                };
 
-                actualDay.extraordinary = nullShift;
-
-                const nullResponse = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${monthId}/days/${dayId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        authorization: jwtToken,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(nullShift),
-                });
-
-                if(nullResponse) {
-                    const responseMonth = nullResponse.month;
-                    const monthHoursElement = document.querySelector(`.${responseMonth.name}`);
-                    monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
-                }
-                
-                return;
-            }
-
-            const selectedShift = shifts.find(shift => shift._id === targetId);
-            actualDay.extraordinary = selectedShift;
-            
-            const { from: shiftFrom, to: shiftTo } = selectedShift;
-            
-            
-            if(selectedShift){
-                from.innerText = `Da: ${shiftFrom}`;
-                to.innerText = `A: ${shiftTo}`;
+                calendar.setDayShift(
+                    calendar.getSelectedYearId(),
+                    calendar.getSelectedMonthId(),
+                    calendar.getSelectedDayId(), 
+                    newShift
+                );
             }
             else {
-                from.innerText = `Da: `;
-                to.innerText = `A: `;
+                const searchedShift = shifts.find(shift => shift._id == selectedShiftId);
+                const { number: shiftNumber, from: shiftFrom, to: shiftTo, total_minutes: shiftTotalMinutes } = searchedShift;
+
+                from.innerText = shiftFrom;
+                to.innerText = shiftTo;
+
+                newShift = {
+                    number: shiftNumber,
+                    from: shiftFrom, 
+                    to: shiftTo,
+                    total_minutes: shiftTotalMinutes
+                }
+
+                calendar.setDayShift(
+                    calendar.getSelectedYearId(), 
+                    calendar.getSelectedMonthId(),
+                    calendar.getSelectedDayId(),
+                    newShift
+                );
             }
-            
-            //TODO RICHIESTE AL SERVER PER AGGIORNARE I DATI
-            
-            const response = await Request.fetchData(`${apiEndpoint}/years/${selectedYearId}/months/${monthId}/days/${dayId}`, {
+
+            const response = await Request.fetchData(`${apiEndpoint}/years/${calendar.getSelectedYearId()}/months/${calendar.getSelectedMonthId()}/days/${calendar.getSelectedDayId()}`, {
                 method: 'PATCH',
                 headers: {
-                    authorization: jwtToken,
+                    authorization: auth.getJwtToken(),
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(selectedShift),
+                body: JSON.stringify(newShift),
             });
 
-            
             if(response) {
-                const responseMonth = response.month;
+                const jsonResponse = await response.json();
+                const responseMonth = jsonResponse.month;
                 const monthHoursElement = document.querySelector(`.${responseMonth.name}`);
                 monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
             }
-        });
+        })
     });
 }
 
-function renderYear(yearToRender) {
-    const { months, year } = yearToRender[0];
+function renderShiftOptions(isEmpty, shiftNumber = null) {
 
-    const nestedList = document.querySelector('.nested-list');
-    nestedList.innerHTML = '';
+    let html = ``;
+    html = isEmpty ? `<option value="null" selected>Seleziona</option>` : `<option value="null">Seleziona</option>`;
     
-    months.forEach(month => {
-        
-        renderMonth(month);
-
+    shifts.map(shift => {
+        if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
+        else html += `<option value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
     });
 
-    const monthInfosList = document.querySelectorAll('.month .month-info');
-    
-    monthInfosList.forEach(month => {
-        month.addEventListener('click', (event) => {
-            event.preventDefault();
-            month.classList.toggle('selected');
-            //console.log(month.dataset);
-            const { monthId } = month.parentElement.dataset;
-            
-            const monthToRender = months.filter(elem => elem._id === monthId);
-            
-            const { days, name: monthName } = monthToRender[0];
-            if(month.classList.contains('selected')) {
-
-                days.forEach(day => {
-                    renderDay(day, monthName, year);
-                });
-
-                const monthSelector = getTodayDateSelector(months);
-
-                const date = new Date();
-                const todayMonth = date.getMonth() + 1;
-
-                if(month.classList.contains(todayMonth)) scrollToElement(monthSelector);
-                
-            }
-            else {
-                const daysList = document.querySelector(`#${monthName}`);
-                daysList.innerHTML = '';
-            }
-        });
-    });
+    return html;
 }
 
 function scrollToElement(element) {
@@ -284,37 +278,35 @@ function getTodayDateSelector(months) {
 
 async function init() {
 
-    const user = getUserCredentials();
-    
-    jwtToken = await getUserToken(user);
+    //Fetch degli anni presenti nel database
+    const allYears = await calendar.fetchYears();
+    calendar.setYears(allYears);
 
-    years = await Request.fetchData(`${apiEndpoint}/years`, {
-        method: 'GET',
-        headers: {
-            authorization: jwtToken
-        }
-    });
+
 
     shifts = await Request.fetchData(`${apiEndpoint}/shifts`, {
         method: 'GET',
         headers: {
-            authorization: jwtToken
+            authorization: auth.getJwtToken()
         }
     });
 
-    setYearsInMenu();
+    shifts = await shifts.json();
+
+    setYearsInDropDownMenu();
 }
 
 init();
 
-function getUserCredentials() {
-    const username = prompt('Enter your username');
-    const password = prompt('Enter your password');
-    
-    const user = {
-        username: username,
-        password: password
-    };
+/* Hlper Functions */
+function capitalizeFirstLetter(word) {
+    return word[0].toUpperCase() + word.substring(1);
+}
 
-    return user;
+function getHourFromMinutes(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+
+    if(h === 0 && m === 0) return '0';
+    else return `${h}:${m}`;
 }
