@@ -8,7 +8,7 @@ const Authentication = require('./auth');
 
 const STATUS_CODES = require('./statusCodes');
 
-const dev = true;
+const dev = false;
 
 if(dev) require('dotenv').config();
 
