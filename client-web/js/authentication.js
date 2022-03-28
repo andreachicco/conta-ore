@@ -1,8 +1,5 @@
-import Request from "./requests.js"
-
-import calendar from "./calendar.js";
-//const apiEndpoint = 'https://conta-ore-straordinari.herokuapp.com/api/v1';
-const apiEndpoint = 'http://localhost:3000/api/v1';
+import Request from "./requests.js";
+import apiEndpoint from "./config.js";
 
 class Authentication {
     constructor() {

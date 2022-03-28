@@ -69,7 +69,6 @@ class Calendar {
 
     setDayShift(yearId, monthId, dayId, newShift) {
         const selectedDay = this.getDayById(yearId, monthId, dayId);
-        console.log(selectedDay);
         selectedDay.extraordinary = newShift;
     }
 

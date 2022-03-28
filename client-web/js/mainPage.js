@@ -109,6 +109,10 @@ function listenForMonthSelection() {
                     const { days } = selectedMonth;
 
                     days.forEach(day => renderDay(day));
+
+                    //Auto Scroll se sul mese attuale
+                    checkIfCurrentMonth(month);
+
                 } catch (error) {
                     console.log(error);
                 } 
@@ -119,6 +123,15 @@ function listenForMonthSelection() {
             }
         });
     });
+}
+
+function checkIfCurrentMonth(month) {
+    const date = new Date();
+    const todayMonth = date.getMonth() + 1;
+
+    const monthSelector = getTodayDateSelector(todayMonth);
+
+    if(month.classList.contains(todayMonth)) scrollToElement(monthSelector);
 }
 
 function renderDay(dayToRender) {
@@ -198,12 +211,29 @@ function listenForShiftSelection() {
                     newShift
                 );
             }
+            else if(selectedShiftId == 'mid-shift') {
+                const insertedFrom = prompt('Inserisci Da:');
+                const insertedTo = prompt('Inserisci A:');
+
+                from.innerText = `Da: ${insertedFrom}`;
+                to.innerText = `A: ${insertedTo}`;
+
+                const fromMinutes = (insertedFrom.split(':')[0] / 60) + insertedFrom.split(':')[1];   
+                const toMinutes = (insertedTo.split(':')[0] / 60) + insertedTo.split(':')[1];   
+
+                newShift = {
+                    number: -1,
+                    from: insertedFrom,
+                    to: insertedTo,
+                    total_minutes: fromMinutes > toMinutes ? ((24 * 60) - toMinutes - fromMinutes) : toMinutes - fromMinutes
+                }
+            }
             else {
                 const searchedShift = shifts.find(shift => shift._id == selectedShiftId);
                 const { number: shiftNumber, from: shiftFrom, to: shiftTo, total_minutes: shiftTotalMinutes } = searchedShift;
 
-                from.innerText = shiftFrom;
-                to.innerText = shiftTo;
+                from.innerText = `Da: ${shiftFrom}`;
+                to.innerText = `A: ${shiftTo}`;
 
                 newShift = {
                     number: shiftNumber,
@@ -244,7 +274,8 @@ function renderShiftOptions(isEmpty, shiftNumber = null) {
 
     let html = ``;
     html = isEmpty ? `<option value="null" selected>Seleziona</option>` : `<option value="null">Seleziona</option>`;
-    
+    html += '<option value="mid-shift">Mezzo Turno</option>'
+
     shifts.map(shift => {
         if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
         else html += `<option value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
@@ -261,17 +292,22 @@ function scrollToElement(element) {
     }
 }
 
-function getTodayDateSelector(months) {
+function getTodayDateSelector(monthIndex) {
+
+    console.log(monthIndex)
     const date = new Date();
 
-    const monthIndex = date.getMonth() + 1;
+    const selectedMonth = calendar.getMonthById(
+        calendar.getSelectedYearId(),
+        calendar.getSelectedMonthId(),
+        calendar.getSelectedDayId()
+    );
 
-    const todayMonth = months.filter(month => month.index === monthIndex);
     const dayIndex = date.getDate();
 
     const year = date.getFullYear();
     
-    const monthSelector = `.${todayMonth[0].name}-${dayIndex}-${year}`
+    const monthSelector = `.${selectedMonth.name}-${dayIndex}-${year}`
     
     return monthSelector;
 }
