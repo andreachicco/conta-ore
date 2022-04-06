@@ -5,7 +5,7 @@ const authenticationMiddleware = require('../middlewares/auth.midlleware');
 
 const defaultRouter = express.Router();
 
-defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (req, res) => {
+defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (_req, res) => {
 
   const selected = await dataBase.getAllYears();
   const { code, years } = selected;

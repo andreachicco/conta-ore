@@ -4,7 +4,7 @@ const STATUS_CODES = require('../statusCodes');
 const dataBase = require('../dataBase');
 const shiftsRouter = express.Router();
 
-shiftsRouter.get('/shifts', async (req, res) => {
+shiftsRouter.get('/shifts', async (_req, res) => {
     
     const selected = await dataBase.getAllShifts();
     const { code, shifts } = selected
