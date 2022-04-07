@@ -22,10 +22,11 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', yearsRouter);
 app.use('/api/v1', shiftsRouter);
 
-//Default route -> Riporta alla route di autenticazione
-app.get('/', (req, res) => {
-  res.redirect('/api/v1/auth');
-})
+app.get("/", (_req, res) => {
+  res.json({
+    message: 'Il server è operativo!'
+  });
+});
 
 //Ascolto del server sulla porta scelta
 const port = process.env.PORT || 3000

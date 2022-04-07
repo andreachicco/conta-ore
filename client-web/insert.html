@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inserzione Turni Lavorativi</title>
+
+    <link rel="icon" href="./media/bus-school.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+
+        <h2 class="title text-center mt-4">Inserimento Turni</h2>
+
+        <form class="insert-form">
+            <!-- 2 column grid layout with text inputs for the first and last names -->
+            <div class="row">
+              <div class="col-12 col-md-6 mb-4">
+                <div class="form-outline form-white">
+                    <label class="form-label" for="shift-number">Numero Turno</label>
+                    <input type="number" id="shift-number" class="form-control form-control-lg" />
+                </div>
+              </div>
+              <div class="col-12 col-md-6 mb-4">
+                <div class="form-outline form-white">
+                    <label class="form-label" for="shift-type">Tipo del Turno</label>
+                    <select class="form-select form-select-lg" id="shift-type" aria-label="Default select example">
+                        <option value="feriale">Feriale</option>
+                        <option value="festivo">Festivo</option>
+                      </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-outline form-white mb-4">
+                <label class="form-label" for="shift-from">Inizio Turno</label>
+              <input type="time" id="shift-from" class="form-control form-control-lg" />
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline form-white mb-4">
+                <label class="form-label" for="shift-to">Fine Turno</label>
+              <input type="time" id="shift-to" class="form-control form-control-lg" />
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-light btn-block mb-4">Sign up</button>
+          </form>
+
+          <p class="text-center insert-result"></p>
+    </div>
+
+    <script type="module" src="./js/insertPage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
