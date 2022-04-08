@@ -16,6 +16,7 @@ const authenticateToken = async(req, res, next) => {
             ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
             user: isValidUser.username,
             request_type: req.method,
+            request_path: req.originalUrl
         }
 
         await database.insertLog(newLog);
