@@ -2,7 +2,7 @@ const Authentication = require('../auth');
 const database = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 
-const authenticateToken = async(req, res, next) => {
+const validateUser = async(req, res) => {
     const token = req.headers['authorization'];
 
     if(token === null) res.sendStatus(STATUS_CODES.UNAUTHORIZED);
@@ -10,6 +10,13 @@ const authenticateToken = async(req, res, next) => {
     const tokenData = await Authentication.getTokenData(token);
 
     const isValidUser = await database.getUser(tokenData);
+
+    return isValidUser;
+}
+
+const authenticateToken = async(req, res, next) => {
+    
+    const isValidUser = await validateUser(req, res);
 
     if(isValidUser) {
         const newLog = {
@@ -26,6 +33,14 @@ const authenticateToken = async(req, res, next) => {
     else return res.sendStatus(STATUS_CODES.UNAUTHORIZED);
 }
 
+const checkIfAdmin = async(req, res, next) => {
+    const isValidUser = await validateUser(req, res);
+
+    if(isValidUser && isValidUser.privileges === 'admin') next();
+    else return res.sendStatus(STATUS_CODES.UNAUTHORIZED);
+}
+
 module.exports = {
-    authenticateToken
+    authenticateToken,
+    checkIfAdmin
 }

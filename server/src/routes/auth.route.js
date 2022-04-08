@@ -4,9 +4,11 @@ const Authentication = require('../auth');
 const dataBase = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 
+const { checkIfAdmin } = require('../middlewares/auth.midlleware');
+
 const authRouter = express.Router();
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', checkIfAdmin, async (req, res) => {
     const { username, privileges, password } = req.body;
 
     const user = {
