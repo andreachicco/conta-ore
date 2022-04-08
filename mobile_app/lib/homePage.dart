@@ -16,9 +16,9 @@ class _HomePageState extends State<HomePage> {
   
   AlertDialog errorAlert = AlertDialog(
     title: const Text("Impossibile connettersi al Server",),
-    content: const Text("C'è stato un errore mentre nel collegamento con il sever, è consigliato controllare la proprio connessione internet e riprovare"),
+    content: const Text("C'è stato un errore mentre nel collegamento con il sever, è consigliato controllare la propria connessione internet e riprovare"),
     actions: [
-      TextButton(onPressed: () => {}, 
+      TextButton(onPressed: () => {},
         child: const Text("Riprova")
       )
     ],
@@ -52,6 +52,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  late dynamic yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.arrow_drop_down_circle_outlined),
                   iconSize: 18,
                   borderRadius: BorderRadius.circular(10),
-                  value: years[0]['year'],
+                  value: yearSelected,
                   items: years.map((dynamic e) {
                     return DropdownMenuItem<dynamic>(
                       value: e['year'],
@@ -90,12 +92,14 @@ class _HomePageState extends State<HomePage> {
                     );
                   }).toList(), 
                   onChanged: (dynamic year) {
-
+                    setState(() {
+                      yearSelected = year;
+                    });
                   },
                 ),
               ),
             ),
-          ) : Text("")
+          ) : const Text("")
         ],
       ),
     );
