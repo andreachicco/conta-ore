@@ -4,12 +4,12 @@ html {
 
 .selected {
 
-    background: #1a565f !important;
+    background: #b5c4e4 !important;
     transition: all .3s;
 }
 
 .btn {
-    background: #1A535C;
+    background: #7EB0D5;
     color: white;
 }
 
@@ -62,7 +62,7 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #24737F;
+    background-color: #CEDAF2;
     border-radius: 20px;
     padding: 3rem 0 3rem 0;
     margin-bottom: .7rem;
@@ -86,7 +86,7 @@ html {
 
 .day-container {
     /*padding: 2rem;*/
-    border-color: #2D909F !important;
+    border-color: #D0EDFD !important;
     border-radius: 20px;
     border: solid 2px;
     margin-bottom: 1rem;
@@ -97,7 +97,7 @@ html {
 .day-info {
     padding: 2rem;
     flex: .3;
-    background: #2D909F;
+    background: #D0EDFD;
     display: flex;
     flex-direction: column;
     justify-content: center;

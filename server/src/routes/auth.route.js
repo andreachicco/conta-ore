@@ -15,14 +15,10 @@ authRouter.post('/register', async (req, res) => {
         password: await Authentication.hashPassword(password)
     };
 
-    try {
-        await dataBase.insertUser(user);
-        res.sendStatus(STATUS_CODES.OK);
-    }
-    catch(error) {
-        console.log('Errore in fase di registrazione', error);
-        res.sendStatus(STATUS_CODES.BAD_REQUEST);
-    }
+    const response = await dataBase.insertUser(user);
+
+    if(response === STATUS_CODES.OK) res.sendStatus(STATUS_CODES.OK);
+    else res.sendStatus(STATUS_CODES.BAD_REQUEST);
 });
 
 authRouter.post('/login', async (req, res) => {
@@ -33,7 +29,7 @@ authRouter.post('/login', async (req, res) => {
         password: password
     };
 
-    const selectedUser = await Authentication.verifyUser(user);
+    const selectedUser = await dataBase.verifyUser(user);
 
     switch(selectedUser) {
         case STATUS_CODES.BAD_REQUEST: 
@@ -51,5 +47,17 @@ authRouter.post('/login', async (req, res) => {
     }
     
 });
+
+/*authRouter.get('/', async (req, res) => {
+
+
+    const tempRandom = Math.random();
+
+    const newToken = Authentication.generateToken(tempRandom);
+
+    res.json({
+        token: newToken,
+    });
+});*/
 
 module.exports = authRouter;

@@ -4,6 +4,8 @@ const Year = require('./models/anno.model');
 const Shift = require('./models/shift.model');
 const User = require('./models/user.model');
 
+const Authentication = require('./auth');
+
 const STATUS_CODES = require('./statusCodes');
 
 const dev = false;
@@ -38,10 +40,29 @@ class DataBase {
     async insertUser(user) {
         const newUser = new User(user);
         await newUser.save();
+
+        return STATUS_CODES.OK;
     }
 
     async getUser(username) {
         return User.findOne({ username: username });
+    }
+
+    async verifyUser(user) {
+
+        const selectedUser = await this.getUser(user.username);
+
+        if(selectedUser) {
+            try {
+                const compared = await Authentication.checkPassword(user.password, selectedUser.password);
+    
+                if(compared) return user;
+                else return STATUS_CODES.UNAUTHORIZED;
+            } catch (error) {
+                return STATUS_CODES.BAD_REQUEST;
+            }
+        }
+        else return STATUS_CODES.NOT_FOUND;
     }
 
     //Metodi per ricavare/inserire Anni
@@ -139,6 +160,7 @@ class DataBase {
 
     //Inserimento turtno lavorativo
     async insertShift(shift) {
+        console.log(shift);
         try {
 
             //Turno lavorativo già esistente
@@ -148,7 +170,6 @@ class DataBase {
             //Aggiunta turno al DB
             const newShift = new Shift(shift);
             await newShift.save();
-            console.log('Turno inserito')
             return STATUS_CODES.CREATED;
         } catch (error) {
             console.error(error);

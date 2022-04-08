@@ -4,7 +4,7 @@ const STATUS_CODES = require('../statusCodes');
 const dataBase = require('../dataBase');
 const shiftsRouter = express.Router();
 
-shiftsRouter.get('/shifts', async (_req, res) => {
+shiftsRouter.get('/shifts', async (req, res) => {
     
     const selected = await dataBase.getAllShifts();
     const { code, shifts } = selected
@@ -12,6 +12,12 @@ shiftsRouter.get('/shifts', async (_req, res) => {
     if(code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json(shifts);
     else res.sendStatus(STATUS_CODES.BAD_REQUEST);
 
+});
+
+shiftsRouter.get('/shifts/:shift', async (req, res) => {
+    const { shift } = req.params;
+
+    
 });
 
 shiftsRouter.post('/shifts', async (req, res) => {
@@ -29,9 +35,6 @@ shiftsRouter.post('/shifts', async (req, res) => {
     switch(insertionCode) {
         case STATUS_CODES.OK: 
             res.sendStatus(STATUS_CODES.OK);
-            break;
-        case STATUS_CODES.CREATED:
-            res.sendStatus(STATUS_CODES.CREATED);
             break;
         case STATUS_CODES.BAD_REQUEST:
             res.sendStatus(STATUS_CODES.BAD_REQUEST);
