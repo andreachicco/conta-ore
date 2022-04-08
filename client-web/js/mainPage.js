@@ -1,7 +1,7 @@
 import Request from "./requests.js";
 
 import auth from "./authentication.js"
-import apiEndpoint from "./config.js";
+import apiEndpoint, { NULL_SHIFT, MID_SHIFT } from "./config.js";
 import calendar from "./calendar.js";
 let shifts = [];
 
@@ -137,6 +137,8 @@ function checkIfCurrentMonth(month) {
 function renderDay(dayToRender) {
     const { name: dayName, _id: dayId, extraordinary, index} = dayToRender;
     const { _id: extraordinaryId, total_miutes: shiftTotalMinutes, number: shiftNumber } = extraordinary;
+
+    console.log(shiftNumber);
     
     const year = calendar.getYearById(calendar.getSelectedYearId());
     const { year: yearNumber } = year; 
@@ -198,7 +200,7 @@ function listenForShiftSelection() {
                 to.innerText = 'A: 0';
 
                 newShift = {
-                    number: -1,
+                    number: NULL_SHIFT,
                     from: 0,
                     to: 0,
                     total_minutes: 0
@@ -222,11 +224,18 @@ function listenForShiftSelection() {
                 const toMinutes = (insertedTo.split(':')[0] / 60) + insertedTo.split(':')[1];   
 
                 newShift = {
-                    number: -1,
+                    number: MID_SHIFT,
                     from: insertedFrom,
                     to: insertedTo,
                     total_minutes: fromMinutes > toMinutes ? ((24 * 60) - toMinutes - fromMinutes) : toMinutes - fromMinutes
                 }
+
+                calendar.setDayShift(
+                    calendar.getSelectedYearId(), 
+                    calendar.getSelectedMonthId(),
+                    calendar.getSelectedDayId(),
+                    newShift
+                );
             }
             else {
                 const searchedShift = shifts.find(shift => shift._id == selectedShiftId);
@@ -274,7 +283,7 @@ function renderShiftOptions(isEmpty, shiftNumber = null) {
 
     let html = ``;
     html = isEmpty ? `<option value="null" selected>Seleziona</option>` : `<option value="null">Seleziona</option>`;
-    html += '<option value="mid-shift">Mezzo Turno</option>'
+    html += shiftNumber === -1 ? '<option selected value="mid-shift">Mezzo Turno</option>' : '<option value="mid-shift">Mezzo Turno</option>'
 
     shifts.map(shift => {
         if(!isEmpty && shift.number === shiftNumber) html += `<option selected value="${shift._id}">${shift.number} ${capitalizeFirstLetter(shift.type)}</option>`;
