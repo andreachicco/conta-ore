@@ -6,6 +6,7 @@ const logSchema = new Schema({
     ip_address: 'string',
     user: 'string',
     request_type: 'string',
+    request_path: 'string',
     request_date: {
         type: Date,
         default: Date.now
