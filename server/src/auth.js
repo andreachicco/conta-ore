@@ -14,7 +14,7 @@ class Authentication {
             try {
                 const compared = await this.checkPassword(user.password, selectedUser.password);
     
-                if(compared) return user;
+                if(compared) return selectedUser;
                 else return STATUS_CODES.UNAUTHORIZED;
             } catch (error) {
                 return STATUS_CODES.BAD_REQUEST;
