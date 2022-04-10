@@ -44,8 +44,8 @@ class _LoginPageState extends State<LoginPage> {
   //********/
   
   //** LOGIN **/
-  Widget progress = const SizedBox();
-  final Uri urlLogin = Uri.parse("http://conta-ore-straordinari.herokuapp.com/api/v1/auth/login");
+  Widget progress = const SizedBox();  //"http://conta-ore-straordinari.herokuapp.com/api/v1/auth/login"
+  final Uri urlLogin = Uri.parse("http://192.168.1.2:3000/api/v1/auth/login");
   String token = '';
   Widget errorMessage = const Text("");
   
@@ -64,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           final res = jsonDecode(value.body);
           token = res['token'];
-          //navigator push   remove sotto
           Navigator.pushAndRemoveUntil(context, 
           MaterialPageRoute(builder: 
               (context) => HomePage(token: token),
@@ -162,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   ),
                 ),
-                SizedBox(height: errorMessage == Text("") ? 0 : 10,),
+                SizedBox(height: 10,),
                 errorMessage
               ],
             ),

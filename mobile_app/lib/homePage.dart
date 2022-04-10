@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_app/yearSelector.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({ Key? key, required this.token }) : super(key: key);
@@ -10,20 +11,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final Uri urlYears = Uri.parse("http://conta-ore-straordinari.herokuapp.com/api/v1/years");
+class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari.herokuapp.com/api/v1/years"
+  final Uri urlYears = Uri.parse("http://192.168.1.2:3000/api/v1/years");
   List<dynamic> years = [];
+  late dynamic yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
   
-  AlertDialog errorAlert = AlertDialog(
-    title: const Text("Impossibile connettersi al Server",),
-    content: const Text("C'è stato un errore mentre nel collegamento con il sever, è consigliato controllare la propria connessione internet e riprovare"),
-    actions: [
-      TextButton(onPressed: () => {},
-        child: const Text("Riprova")
-      )
-    ],
-  );
-
   bool connected = false;
   
   Future getYears(token) async{
@@ -46,13 +38,21 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  AlertDialog errorAlert = AlertDialog(
+    title: const Text("Impossibile connettersi al Server"),
+    content: const Text("C'è stato un errore nel collegamento con il server, è consigliato controllare la propria connessione internet e riprovare"),
+    actions: [
+      TextButton(onPressed: () => {}, //TODO risovlere chiamata getYears
+        child: const Text("Riprova")
+      )    
+    ],
+  );
+
   @override
   void initState(){
     getYears(widget.token);
     super.initState();
   }
-
-  late dynamic yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
 
   @override
   Widget build(BuildContext context) {
@@ -70,36 +70,8 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(height: 15),
-          connected ? Center(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5)
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: DropdownButton(
-                  icon: const Icon(Icons.arrow_drop_down_circle_outlined),
-                  iconSize: 18,
-                  borderRadius: BorderRadius.circular(10),
-                  value: yearSelected,
-                  items: years.map((dynamic e) {
-                    return DropdownMenuItem<dynamic>(
-                      value: e['year'],
-                      child: Text("${e['year']}",
-                        style: Theme.of(context).textTheme.headline2,
-                      ),
-                    );
-                  }).toList(), 
-                  onChanged: (dynamic year) {
-                    setState(() {
-                      yearSelected = year;
-                    });
-                  },
-                ),
-              ),
-            ),
-          ) : const Text("")
+          connected ? YearSelector(yearSelected: yearSelected, years: years) 
+            : const Text(""),
         ],
       ),
     );
