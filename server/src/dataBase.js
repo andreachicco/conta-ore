@@ -27,6 +27,7 @@ class DataBase {
         //Singleton Pattern
         if(!DataBase.instance) {
 
+            //const localUri = 'mongodb://127.0.0.1:27017/conta-ore-test';
             const mongoAtlasUri = `mongodb+srv://${this.dbCredentials.username}:${this.dbCredentials.password}@cluster0.urdgj.mongodb.net/${this.dbCredentials.dbName}?retryWrites=true&w=majority`;
             mongoose.connect(mongoAtlasUri, (err) => {
                 if(!err) console.log('Connessione DB riuscita');

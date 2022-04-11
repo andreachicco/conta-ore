@@ -6,6 +6,23 @@ const dataBase = require('./dataBase');
 
 class Authentication {
 
+<<<<<<< HEAD
+=======
+        const selectedUser = await dataBase.getUser(user.username);
+
+        if(selectedUser) {
+            try {
+                const compared = await this.checkPassword(user.password, selectedUser.password);
+    
+                if(compared) return selectedUser;
+                else return STATUS_CODES.UNAUTHORIZED;
+            } catch (error) {
+                return STATUS_CODES.BAD_REQUEST;
+            }
+        }
+        else return STATUS_CODES.NOT_FOUND;
+    }
+>>>>>>> development
     
     static async hashPassword(password) {
         const saltRounds = 10;

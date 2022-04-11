@@ -4,7 +4,13 @@ const STATUS_CODES = require('../statusCodes');
 const dataBase = require('../dataBase');
 const shiftsRouter = express.Router();
 
+<<<<<<< HEAD
 shiftsRouter.get('/shifts', async (req, res) => {
+=======
+const { authenticateToken, checkIfAdmin } = require('../middlewares/auth.midlleware');
+
+shiftsRouter.get('/shifts', authenticateToken, async (_req, res) => {
+>>>>>>> development
     
     const selected = await dataBase.getAllShifts();
     const { code, shifts } = selected
@@ -14,6 +20,7 @@ shiftsRouter.get('/shifts', async (req, res) => {
 
 });
 
+<<<<<<< HEAD
 shiftsRouter.get('/shifts/:shift', async (req, res) => {
     const { shift } = req.params;
 
@@ -21,6 +28,9 @@ shiftsRouter.get('/shifts/:shift', async (req, res) => {
 });
 
 shiftsRouter.post('/shifts', async (req, res) => {
+=======
+shiftsRouter.post('/shifts', checkIfAdmin, async (req, res) => {
+>>>>>>> development
     const { shiftNumber, shiftType, from, to } = req.body;
 
     const newShift = {
