@@ -4,7 +4,7 @@ class YearSelector extends StatefulWidget {
   YearSelector({required this.yearSelected, required this.years, Key? key }) : super(key: key);
   
   List<dynamic> years;
-  dynamic yearSelected;
+  int yearSelected;
 
   @override
   _YearSelectorState createState() => _YearSelectorState();

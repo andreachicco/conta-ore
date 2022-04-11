@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_app/yearSelector.dart';
+import 'package:mobile_app/monthsList.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({ Key? key, required this.token }) : super(key: key);
@@ -12,9 +13,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari.herokuapp.com/api/v1/years"
-  final Uri urlYears = Uri.parse("http://192.168.1.2:3000/api/v1/years");
+  final Uri urlYears = Uri.parse("http://130.251.107.240:3000/api/v1/years");
   List<dynamic> years = [];
-  late dynamic yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
+  late int yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
   
   bool connected = false;
   
@@ -32,21 +33,24 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
       }
       else{
         showDialog(context: context, 
-          builder: (BuildContext context) => errorAlert
+          builder: (BuildContext context) => errorAlert()
         );
       }
     });
   }
 
-  AlertDialog errorAlert = AlertDialog(
-    title: const Text("Impossibile connettersi al Server"),
-    content: const Text("C'è stato un errore nel collegamento con il server, è consigliato controllare la propria connessione internet e riprovare"),
-    actions: [
-      TextButton(onPressed: () => {}, //TODO risovlere chiamata getYears
-        child: const Text("Riprova")
-      )    
-    ],
-  );
+  Widget errorAlert() { 
+    return AlertDialog(
+      title: const Text("Impossibile connettersi al Server"),
+      content: const Text("C'è stato un errore nel collegamento con il server, è consigliato controllare la propria connessione internet e riprovare"),
+      actions: [
+        TextButton(
+          onPressed: () => getYears(widget.token),
+          child: const Text("Riprova")
+        )    
+      ],
+    );
+  }
 
   @override
   void initState(){
@@ -66,13 +70,19 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).primaryColor
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(height: 15),
-          connected ? YearSelector(yearSelected: yearSelected, years: years) 
-            : const Text(""),
-        ],
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(height: 15),
+            connected ? YearSelector(yearSelected: yearSelected, years: years) 
+              : const Text(""),
+            const SizedBox(height: 15),
+            connected ? MonthsList(yearSelected: yearSelected, years: years) 
+              : const Text(""), 
+          ],
+        ),
       ),
     );
   }
