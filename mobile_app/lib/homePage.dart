@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari.herokuapp.com/api/v1/years"
-  final Uri urlYears = Uri.parse("http://130.251.107.240:3000/api/v1/years");
+  final Uri urlYears = Uri.parse("http://192.168.1.2:3000/api/v1/years");
   List<dynamic> years = [];
   late int yearSelected = connected ? years[0]['year'] : DateTime.now().toLocal().year.toInt();
   

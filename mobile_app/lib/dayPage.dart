@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/day.dart';
 
 class DaysPage extends StatefulWidget {
   DaysPage({ required this.days, required this.month, Key? key }) : super(key: key);
@@ -10,8 +11,11 @@ class DaysPage extends StatefulWidget {
 }
 
 class _DaysPageState extends State<DaysPage> {
+  List<Day> getDays() => widget.days.map((day) => Day.fromMap(day)).toList();
+  
   @override
   Widget build(BuildContext context) {
+    final List<Day> _days = getDays();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
@@ -25,42 +29,36 @@ class _DaysPageState extends State<DaysPage> {
         backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(15),
-        itemCount: widget.days.length,
-        itemBuilder: (context, int index) {
-          return Row( 
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-            Container(
-              width: 150,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10)
-              ),
-              padding: const EdgeInsets.all(10),
-              margin: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  Text(widget.days[index]['index'].toString(),
-                    style: const TextStyle(
-                      color: Colors.redAccent, 
-                      fontSize: 40, 
-                      fontWeight: FontWeight.w800
-                    ),
+      body: SingleChildScrollView( child: 
+        ExpansionPanelList(
+          expansionCallback: (panelIndex, isExpanded) {
+            setState(() {
+              _days[panelIndex].isExpanded = !isExpanded;
+            });
+          },
+          children: _days.map((day) {
+            return ExpansionPanel(
+              headerBuilder: ((context, isExpanded) => ListTile(
+                leading: Text(day.index.toString(),
+                  style: TextStyle(
+                    color: day.name == "dom" ? Colors.red : Colors.grey[600],
+                    fontSize: 40,
+                    fontWeight: FontWeight.w800
+                    )
                   ),
-                  const SizedBox(width: 15),
-                  Text(widget.days[index]['name'],
-                    style: Theme.of(context).textTheme.headline3,
+                title: Text(day.name,
+                  style: Theme.of(context).textTheme.headline3,
                   )
-                ],
+                )
               ),
-            ),
-            Text('test')
-          ]);
-        },
-      ),
+              body: Text('test'),
+              isExpanded: day.isExpanded,
+              canTapOnHeader: true,
+              backgroundColor: Colors.white
+            );
+          }).toList(),
+        ),
+      )
     );
   }
 }

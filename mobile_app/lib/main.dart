@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
   
   //** LOGIN **/
   Widget progress = const SizedBox();  //"http://conta-ore-straordinari.herokuapp.com/api/v1/auth/login"
-  final Uri urlLogin = Uri.parse("http://130.251.107.240:3000/api/v1/auth/login");
+  final Uri urlLogin = Uri.parse("http://192.168.1.2:3000/api/v1/auth/login");
   String token = '';
   Widget errorMessage = const Text("");
   
