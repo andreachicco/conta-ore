@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
       }
       else{
         showDialog(context: context, 
-          builder: (BuildContext context) => errorAlert()
+          builder: (BuildContext context) => errorAlert() //TODO far riprovare più volte
         );
       }
     });
@@ -76,7 +76,15 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 15),
-            connected ? YearSelector(yearSelected: yearSelected, years: years) 
+            connected ? YearSelector(
+              yearSelected: yearSelected, 
+              years: years,
+              changeSelectedYear: (dynamic year) {
+                setState(() {
+                  yearSelected = year;
+                });
+              },
+            ) 
               : const Text(""),
             const SizedBox(height: 15),
             connected ? MonthsList(yearSelected: yearSelected, years: years) 

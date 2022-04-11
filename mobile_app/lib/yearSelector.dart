@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class YearSelector extends StatefulWidget {
-  YearSelector({required this.yearSelected, required this.years, Key? key }) : super(key: key);
+  YearSelector({required this.yearSelected, required this.years, 
+  required this.changeSelectedYear, Key? key }) : super(key: key);
   
   List<dynamic> years;
   int yearSelected;
+  Function changeSelectedYear;
 
   @override
   _YearSelectorState createState() => _YearSelectorState();
@@ -34,11 +36,7 @@ class _YearSelectorState extends State<YearSelector> {
                 ),
               );
             }).toList(), 
-            onChanged: (dynamic year) {
-              setState(() {
-                widget.yearSelected = year;
-              });
-            },
+            onChanged: (dynamic year) => widget.changeSelectedYear(year)
           ),
         ),
       ),

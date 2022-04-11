@@ -1,4 +1,5 @@
-import  'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_app/dayPage.dart';
 
 class MonthsList extends StatefulWidget {
   MonthsList({required this.yearSelected, required this.years, Key? key }) : super(key: key);
@@ -37,7 +38,14 @@ class _MonthsListState extends State<MonthsList> {
             trailing: const Icon(Icons.east,
               size: 35,
             ),
-            onTap: () {}, //TODO
+            onTap: () => Navigator.push(context, 
+              MaterialPageRoute(builder: 
+                (context) => DaysPage(
+                  days: months[index]['days'], 
+                  month: months[index]['name'],
+                )
+              )
+            ), 
           ),
         );
       },
