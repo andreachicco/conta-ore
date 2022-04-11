@@ -6,8 +6,8 @@ const dataBase = require('./dataBase');
 
 class Authentication {
 
-<<<<<<< HEAD
-=======
+    static async verifyUser(user) {
+
         const selectedUser = await dataBase.getUser(user.username);
 
         if(selectedUser) {
@@ -22,7 +22,6 @@ class Authentication {
         }
         else return STATUS_CODES.NOT_FOUND;
     }
->>>>>>> development
     
     static async hashPassword(password) {
         const saltRounds = 10;
