@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Year = require('./models/anno.model');
 const Shift = require('./models/shift.model');
 const User = require('./models/user.model');
+const Log = require('./models/log.model');
 
 const Authentication = require('./auth');
 
@@ -125,23 +126,6 @@ class DataBase {
         }
     }
 
-    /*async getAllMonthsByYearId(yearId) {
-        const requestedYear = await this.getYear(yearId);
-
-        const months = requestedYear.months;
-
-        return months;
-    }
-
-    async getMonthByYear(yearId, monthId) {
-        const months = await this.getAllMonthsByYearId(yearId);
-        
-        const requestedMonth = months.find(month => month._id == monthId);
-        
-        return requestedMonth;
-    } */
-
-
     //Metodi per ricavare/inserire Turni Lavorativi
     async getAllShifts() {
         try {
@@ -173,6 +157,18 @@ class DataBase {
             return STATUS_CODES.CREATED;
         } catch (error) {
             console.error(error);
+            return STATUS_CODES.BAD_REQUEST;
+        }
+    }
+
+    async insertLog(log) {
+        try {
+            const newLog = new Log(log);
+            await newLog.save();
+
+            return STATUS_CODES.CREATED;
+        } catch (error) {
+            console.log(error);
             return STATUS_CODES.BAD_REQUEST;
         }
     }

@@ -11,7 +11,18 @@ const authenticateToken = async(req, res, next) => {
 
     const isValidUser = await database.getUser(tokenData);
 
-    if(isValidUser) next();
+    if(isValidUser) {
+        const newLog = {
+            ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+            user: isValidUser.username,
+            request_type: req.method,
+            request_path: req.originalUrl
+        }
+
+        await database.insertLog(newLog);
+        
+        next();
+    }
     else return res.sendStatus(STATUS_CODES.UNAUTHORIZED);
 }
 
