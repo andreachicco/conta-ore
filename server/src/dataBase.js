@@ -6,28 +6,28 @@ const User = require('./models/user.model');
 const Log = require('./models/log.model');
 
 const STATUS_CODES = require('./statusCodes');
-
+//! modifiche per locale
 const dev = true;
 
 if(dev) require('dotenv').config();
 
 class DataBase {
-
+    /* //!
     //Credenziali DataBase
     dbCredentials = {
         username: process.env.DBUSERNAME,
         password: process.env.DBPASSWORD,
         dbName: process.env.DBNAME
-    }
+    }*/
 
     constructor () {
 
         //Singleton Pattern
         if(!DataBase.instance) {
-
-            //const localUri = 'mongodb://localhost:27017/conta-ore-test';
-            const mongoAtlasUri = `mongodb+srv://${this.dbCredentials.username}:${this.dbCredentials.password}@cluster0.urdgj.mongodb.net/${this.dbCredentials.dbName}?retryWrites=true&w=majority`;
-            mongoose.connect(mongoAtlasUri, (err) => {
+            //!
+            const localUri = 'mongodb://127.0.0.1:27017/conta-ore-test';
+            //const mongoAtlasUri = `mongodb+srv://${this.dbCredentials.username}:${this.dbCredentials.password}@cluster0.urdgj.mongodb.net/${this.dbCredentials.dbName}?retryWrites=true&w=majority`;
+            mongoose.connect(/*mongoAtlasUri*/localUri, (err) => {
                 if(!err) console.log('Connessione DB riuscita');
                 else console.error('Errore connessione DB: ', err);
             });

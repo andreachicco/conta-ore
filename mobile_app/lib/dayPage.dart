@@ -9,13 +9,17 @@ class DaysPage extends StatefulWidget {
   @override
   _DaysPageState createState() => _DaysPageState();
 }
-
 class _DaysPageState extends State<DaysPage> {
-  List<Day> getDays() => widget.days.map((day) => Day.fromMap(day)).toList();
+  List<Day> _days = [];
+  
+  @override
+  void initState(){
+    _days = widget.days.map((day) => Day.fromMap(day)).toList();
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
-    final List<Day> _days = getDays();
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
@@ -51,7 +55,7 @@ class _DaysPageState extends State<DaysPage> {
                   )
                 )
               ),
-              body: Text('test'),
+              body: Placeholder(),
               isExpanded: day.isExpanded,
               canTapOnHeader: true,
               backgroundColor: Colors.white
