@@ -1,5 +1,7 @@
 import Request from "./requests.js";
-const apiUrl = 'http://localhost:3000/api/v1';
+import apiEndpoint from "./config.js";
+
+import auth from "./authentication.js";
 
 const insertForm = document.querySelector('.insert-form');
 
@@ -20,22 +22,34 @@ insertForm.addEventListener('submit', async (event) => {
             to: shiftTo
         }
 
-        const response = await Request.fetchData(`${apiUrl}/shifts`, {
+        const response = await Request.fetchData(`${apiEndpoint}/shifts`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'authorization': await auth.getJwtToken()
             },
             body: JSON.stringify(newShift),
         });
+
+        console.log(response.status);
 
         insertForm.reset();
         const insertResult = document.querySelector('.insert-result');
 
         insertResult.innerText = '';
 
-        if(response.status === 201) insertResult.innerText = 'Inserimento Riuscito';
-        else insertResult.innerText = 'Inserimento NON Riuscito';
+        switch(response.status) {
+            case 201: 
+                insertResult.innerText = 'Inserimento Riuscito';
+                break;
+            case 401: 
+                insertResult.innerText = 'Non si dispone delle autorizzazioni necessrie'
+                break;
+            default: 
+                insertResult.innerText = 'Inserimento NON riuscito';
+                break;
+        }
 
         setTimeout(() => { insertResult.innerText = '' }, 2000);
 
