@@ -26,9 +26,39 @@ class _DaysPageState extends State<DaysPage> {
         centerTitle: true,
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.all(15),
         itemCount: widget.days.length,
         itemBuilder: (context, int index) {
-          return Card(child: ListTile(title: Text(widget.days[index]['name'])));
+          return Row( 
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+            Container(
+              width: 150,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10)
+              ),
+              padding: const EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Text(widget.days[index]['index'].toString(),
+                    style: const TextStyle(
+                      color: Colors.redAccent, 
+                      fontSize: 40, 
+                      fontWeight: FontWeight.w800
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Text(widget.days[index]['name'],
+                    style: Theme.of(context).textTheme.headline3,
+                  )
+                ],
+              ),
+            ),
+            Text('test')
+          ]);
         },
       ),
     );
