@@ -6,6 +6,8 @@ import calendar from "./calendar.js";
 let shifts = [];
 
 
+const loading = document.querySelector('.loading');
+
 const goUpBtn = document.querySelector('.go-up');
 goUpBtn.addEventListener('click', (event) => {
     event.preventDefault();
@@ -129,7 +131,7 @@ function checkIfCurrentMonth(month) {
     const date = new Date();
     const todayMonth = date.getMonth() + 1;
 
-    const monthSelector = getTodayDateSelector(todayMonth);
+    const monthSelector = getTodayDateSelector();
 
     if(month.classList.contains(todayMonth)) scrollToElement(monthSelector);
 }
@@ -137,8 +139,6 @@ function checkIfCurrentMonth(month) {
 function renderDay(dayToRender) {
     const { name: dayName, _id: dayId, extraordinary, index} = dayToRender;
     const { _id: extraordinaryId, total_miutes: shiftTotalMinutes, number: shiftNumber } = extraordinary;
-
-    console.log(shiftNumber);
     
     const year = calendar.getYearById(calendar.getSelectedYearId());
     const { year: yearNumber } = year; 
@@ -205,13 +205,6 @@ function listenForShiftSelection() {
                     to: 0,
                     total_minutes: 0
                 };
-
-                calendar.setDayShift(
-                    calendar.getSelectedYearId(),
-                    calendar.getSelectedMonthId(),
-                    calendar.getSelectedDayId(), 
-                    newShift
-                );
             }
             else if(selectedShiftId == 'mid-shift') {
                 const insertedFrom = prompt('Inserisci Da:');
@@ -229,13 +222,6 @@ function listenForShiftSelection() {
                     to: insertedTo,
                     total_minutes: fromMinutes > toMinutes ? ((24 * 60) - toMinutes - fromMinutes) : toMinutes - fromMinutes
                 }
-
-                calendar.setDayShift(
-                    calendar.getSelectedYearId(), 
-                    calendar.getSelectedMonthId(),
-                    calendar.getSelectedDayId(),
-                    newShift
-                );
             }
             else {
                 const searchedShift = shifts.find(shift => shift._id == selectedShiftId);
@@ -250,19 +236,20 @@ function listenForShiftSelection() {
                     to: shiftTo,
                     total_minutes: shiftTotalMinutes
                 }
-
-                calendar.setDayShift(
-                    calendar.getSelectedYearId(), 
-                    calendar.getSelectedMonthId(),
-                    calendar.getSelectedDayId(),
-                    newShift
-                );
             }
 
+            calendar.setDayShift(
+                calendar.getSelectedYearId(),
+                calendar.getSelectedMonthId(),
+                calendar.getSelectedDayId(), 
+                newShift
+            );
+
+            loading.classList.remove('display-none');
             const response = await Request.fetchData(`${apiEndpoint}/years/${calendar.getSelectedYearId()}/months/${calendar.getSelectedMonthId()}/days/${calendar.getSelectedDayId()}`, {
                 method: 'PATCH',
                 headers: {
-                    authorization: auth.getJwtToken(),
+                    authorization: await auth.getJwtToken(),
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
@@ -275,6 +262,7 @@ function listenForShiftSelection() {
                 const monthHoursElement = document.querySelector(`.${responseMonth.name}`);
                 monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
             }
+            loading.classList.add('display-none');
         })
     });
 }
@@ -301,9 +289,8 @@ function scrollToElement(element) {
     }
 }
 
-function getTodayDateSelector(monthIndex) {
+function getTodayDateSelector() {
 
-    console.log(monthIndex)
     const date = new Date();
 
     const selectedMonth = calendar.getMonthById(
@@ -322,23 +309,23 @@ function getTodayDateSelector(monthIndex) {
 }
 
 async function init() {
-
+    
     //Fetch degli anni presenti nel database
     const allYears = await calendar.fetchYears();
     calendar.setYears(allYears);
 
-
-
     shifts = await Request.fetchData(`${apiEndpoint}/shifts`, {
         method: 'GET',
         headers: {
-            authorization: auth.getJwtToken()
+            authorization: await auth.getJwtToken()
         }
-    });
+    }); 
 
-    shifts = await shifts.json();
+    shifts = await shifts.json(); 
 
     setYearsInDropDownMenu();
+
+    loading.classList.add('display-none');
 }
 
 init();
