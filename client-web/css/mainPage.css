@@ -3,7 +3,7 @@ html {
 }
 
 .loading img {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     z-index: 100;
@@ -11,7 +11,7 @@ html {
 }
 
 .obfuscated {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     height: 100vh;

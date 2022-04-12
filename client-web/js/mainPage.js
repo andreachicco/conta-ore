@@ -246,6 +246,7 @@ function listenForShiftSelection() {
             );
 
             loading.classList.remove('display-none');
+            document.body.style.overflow = "hidden";
             const response = await Request.fetchData(`${apiEndpoint}/years/${calendar.getSelectedYearId()}/months/${calendar.getSelectedMonthId()}/days/${calendar.getSelectedDayId()}`, {
                 method: 'PATCH',
                 headers: {
@@ -263,6 +264,7 @@ function listenForShiftSelection() {
                 monthHoursElement.innerText = `Ore totali: ${getHourFromMinutes(responseMonth.total_minutes)}`;
             }
             loading.classList.add('display-none');
+            document.body.style.overflow = "auto";
         })
     });
 }
