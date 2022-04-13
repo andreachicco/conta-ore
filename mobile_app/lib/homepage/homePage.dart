@@ -5,15 +5,15 @@ import 'package:mobile_app/homepage/yearSelector.dart';
 import 'package:mobile_app/homepage/monthsList.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({ Key? key }) : super(key: key);
+  const HomePage({ Key? key, required this.token }) : super(key: key);
+  final String token;
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari.herokuapp.com/api/v1/years"
-  final Uri urlYears = Uri.parse("http://130.251.240.82:3000/api/v1/years");
-  var token;
+  final Uri urlYears = Uri.parse("http://192.168.1.2:3000/api/v1/years");  
   
   //** Years and variables 
   List<dynamic> years = [];
@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
   Future getYears(token) async {
     http.get(urlYears, 
       headers: {
-        'authorization': token
+        'authorization': widget.token
       }
     ).then((value){
       if(value.statusCode == 200){
@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
       content: const Text("C'è stato un errore nel collegamento con il server, è consigliato controllare la propria connessione internet e riprovare"),
       actions: [
         TextButton(
-          onPressed: () => getYears(token),
+          onPressed: () => getYears(widget.token),
           child: const Text("Riprova")
         )    
       ],
@@ -54,9 +54,13 @@ class _HomePageState extends State<HomePage> {  //"http://conta-ore-straordinari
   }
 
   @override
+  void initState(){
+    getYears(widget.token);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    token = (ModalRoute.of(context)?.settings.arguments! as Map)['token'];
-    getYears(token);
     
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,

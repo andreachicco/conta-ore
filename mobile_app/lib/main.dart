@@ -24,10 +24,7 @@ class MyApp extends StatelessWidget {
           bodyText1: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.grey)
         )
       ),
-      routes: <String,WidgetBuilder> {
-        '/': (context) => LoginPage(),
-        '/homepage': (context) => HomePage(),
-      },
+      home: LoginPage(),
     );
   }
 }
@@ -50,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
   
   //** LOGIN **/
   Widget progress = const SizedBox();  //"http://conta-ore-straordinari.herokuapp.com/api/v1/auth/login"
-  final Uri urlLogin = Uri.parse("http://130.251.240.82:3000/api/v1/auth/login");
+  final Uri urlLogin = Uri.parse("http://192.168.1.2:3000/api/v1/auth/login");
   String token = '';
   Widget errorMessage = const Text("");
   
@@ -69,12 +66,9 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           final res = jsonDecode(value.body);
           token = res['token'];
-          Navigator.pushReplacementNamed(
+          Navigator.pushReplacement(
             context, 
-            '/homepage',
-            arguments: <String,String>{ 
-              'token': token,
-            }
+            MaterialPageRoute(builder: (context) => HomePage(token: token))
           );
         });
       } else{
