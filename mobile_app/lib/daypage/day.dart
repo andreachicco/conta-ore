@@ -3,6 +3,7 @@ class Day{
   late int index;
   dynamic extraordinary;
   late bool isExpanded;
+  
   Day.fromMap(dynamic day){
     name = day['name'];
     index = day['index'];

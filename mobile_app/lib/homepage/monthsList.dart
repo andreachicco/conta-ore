@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/dayPage.dart';
+import 'package:mobile_app/daypage/dayPage.dart';
 
 class MonthsList extends StatefulWidget {
-  MonthsList({required this.yearSelected, required this.years, Key? key }) : super(key: key);
+  const MonthsList({required this.yearSelected, required this.years, Key? key }) : super(key: key);
 
-  List<dynamic> years;
-  int yearSelected;
+  final List<dynamic> years;
+  final int yearSelected;
   
   @override
   _MonthsListState createState() => _MonthsListState();
@@ -38,13 +38,15 @@ class _MonthsListState extends State<MonthsList> {
             trailing: const Icon(Icons.east,
               size: 35,
             ),
-            onTap: () => Navigator.push(context, 
-              MaterialPageRoute(builder: 
-                (context) => DaysPage(
-                  days: months[index]['days'], 
-                  month: months[index]['name'],
+            onTap: () => Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: 
+                  (context) => DaysPage(
+                    days: months[index]['days'], 
+                    month: months[index]['name'],
                 )
-              )
+              ), 
             ), 
           ),
         );

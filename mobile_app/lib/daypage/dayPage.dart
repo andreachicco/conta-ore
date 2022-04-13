@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/day.dart';
+import 'package:mobile_app/daypage/day.dart';
 
 class DaysPage extends StatefulWidget {
   DaysPage({ required this.days, required this.month, Key? key }) : super(key: key);
@@ -10,14 +10,13 @@ class DaysPage extends StatefulWidget {
   _DaysPageState createState() => _DaysPageState();
 }
 class _DaysPageState extends State<DaysPage> {
-  List<Day> _days = [];
-  
+  List<Day> _daysObjects = [];
   @override
   void initState(){
-    _days = widget.days.map((day) => Day.fromMap(day)).toList();
+    _daysObjects = widget.days.map((day) => Day.fromMap(day)).toList();
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +36,10 @@ class _DaysPageState extends State<DaysPage> {
         ExpansionPanelList(
           expansionCallback: (panelIndex, isExpanded) {
             setState(() {
-              _days[panelIndex].isExpanded = !isExpanded;
+              _daysObjects[panelIndex].isExpanded = !isExpanded;
             });
           },
-          children: _days.map((day) {
+          children: _daysObjects.map((day) {
             return ExpansionPanel(
               headerBuilder: ((context, isExpanded) => ListTile(
                 leading: Text(day.index.toString(),
@@ -66,3 +65,14 @@ class _DaysPageState extends State<DaysPage> {
     );
   }
 }
+
+
+
+Map<String, int> tabella_hash = {
+  'mela':1,
+  'pera':2,
+  'arancia':0,
+  'banana':0 //collisione
+};
+
+List<int> costo = [23, 34, 2, 1, 12];
