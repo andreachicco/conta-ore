@@ -1,14 +1,13 @@
 const express = require('express');
-const PDFDocument = require('pdfkit');
+const PDFDocument = require('pdfkit-table');
 const fs = require('fs');
 const path = require('path');
-const doc = new PDFDocument();
 
 const STATUS_CODES = require('../statusCodes');
 const dataBase = require('../dataBase');
 const printsRouter = express.Router();
 
-const { authenticateToken, checkIfAdmin } = require('../middlewares/auth.midlleware');
+const { authenticateToken } = require('../middlewares/auth.midlleware');
 
 printsRouter.get('/prints/:yearId/:monthId', authenticateToken, async (req, res) => {
     
@@ -19,24 +18,18 @@ printsRouter.get('/prints/:yearId/:monthId', authenticateToken, async (req, res)
     if(selectedYear) {
         const selectedMonth = selectedYear.year.months.find(month => month._id == monthId);
 
-        //doc.addPage();
+        const doc = new PDFDocument({size: 'A4'});
         const writeStream = fs.createWriteStream('src/routes/newFile.pdf');
         doc.pipe(writeStream);
         
-        createPDF(selectedMonth);
+        createPDF(doc, selectedYear.year.year, selectedMonth);
 
         writeStream.on('finish', () => {
             const file = path.join(__dirname, 'newFile.pdf');
-            res.download(file, function (err) {
-                if (err) {
-                    console.log("Error");
-                    console.log(err);
-                } else {
-                    console.log("Success");
-                }    
+            res.download(file, (err) => {
+                if(err) console.error(err);
             });
-        }) 
-        //res.sendStatus(STATUS_CODES.OK);
+        });
     }
     else res.sendStatus(STATUS_CODES.BAD_REQUEST);
 
@@ -46,23 +39,45 @@ function upperCaseFirstLetter(text) {
     return text[0].toUpperCase() + text.slice(1) ;
 }
 
-function createPDF(selectedMonth) {
+function createPDF(doc, year, month) {
+    const imageSize = {
+        width: 70,
+        height: 70
+    }
 
     doc
-        .fontSize(20)
-        .text(`${upperCaseFirstLetter(selectedMonth.name)} - ${selectedMonth.index}\n\n\n`, 50, 50);
-    
+        .image('./src/media/bus.png', { 
+            width: imageSize.width,
+            height: imageSize.height 
+        })
+        .font('./src/media/Roboto/Roboto-Bold.ttf')
+        .fontSize(13)
+        .text(`CONTA ORE STRAORDINARI\nMESE: ${month.name.toUpperCase()}/${year}, ORE TOTALI: ${getHourFromMinutes(month.total_minutes)}\nDATA RILASCIO PDF: ${new Date().toLocaleDateString()}`, imageSize.width * 2.2, imageSize.height + 15);
+        
+    const dayTable = {
+        headers: ["GIORNO", "DA", "A", "ORE TOTALI", "TURNO"],
+        rows: [],
+    };
 
-    selectedMonth.days.forEach(day => {
+    month.days.forEach(day => {
+        const newRow = [];
 
-        doc.lineWidth(2);
-        doc.lineCap('round').stroke();
+        const date = day.index < 10 ? `0${day.index} - ${upperCaseFirstLetter(day.name)}` : `${day.index} - ${upperCaseFirstLetter(day.name)}`;
+        newRow.push(date);
 
-        const text = `${upperCaseFirstLetter(day.name)} - ${day.index}:\n     From: ${day.extraordinary.from}\n     To: ${day.extraordinary.from}\n     Total Hours: ${getHourFromMinutes(day.extraordinary.total_minutes)}\n\n\n`
-        doc
-            .fontSize(15) 
-            .text(text, 100);
-    });
+        if(day.extraordinary.total_minutes != 0) {
+            newRow.push(day.extraordinary.from);
+            newRow.push(day.extraordinary.to);
+            newRow.push(getHourFromMinutes(day.extraordinary.total_minutes));
+
+            if(day.extraordinary.number >= 0) newRow.push(day.extraordinary.number);
+            else newRow.push('Mezzo Turno');
+        }
+
+        dayTable.rows.push(newRow);
+    })
+          
+    doc.text('', 0, 200).table( dayTable );   
 
     // Finalize PDF file
     doc.end();
