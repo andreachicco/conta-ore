@@ -2,6 +2,7 @@ const express = require('express');
 const dataBase = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 const authenticationMiddleware = require('../middlewares/auth.midlleware');
+const { getMinutesFromHours } = require('../helper');
 
 const defaultRouter = express.Router();
 
@@ -49,13 +50,8 @@ defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, re
   let response;
 
   try {
-    const fromHour = parseInt(from.split(':')[0]);
-    const fromMinutes = parseInt(from.split(':')[1])
-    const fromTotalMinutes = (fromHour * 60) + fromMinutes;
-  
-    const toHour = parseInt(to.split(':')[0]);
-    const toMinutes = parseInt(to.split(':')[1])
-    const toTotalMinutes = (toHour * 60) + toMinutes;
+    const fromTotalMinutes = getMinutesFromHours(from);
+    const toTotalMinutes = getMinutesFromHours(to);
     let totalMinutes = 0;
   
     if(fromTotalMinutes > toTotalMinutes) {
@@ -74,23 +70,5 @@ defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, re
   if(response.code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json({ month: response.month });
   else res.sendStatus(response);
 });
-
-/*defaultRouter.get(`/years/:year/months/`, authenticationMiddleware.authenticateToken, async (req, res) => {
-  const { year } = req.params;
-
-  const allMonths = await dataBase.getAllMonthsByYear(year);
-
-  if(allMonths) res.status(200).json(allMonths);
-  else res.sendStatus(404);
-});
-
-defaultRouter.get(`/years/:year/months/:month`, authenticationMiddleware.authenticateToken, async (req, res) => {
-  const { year, month } = req.params;
-
-  const requestedMonth = await dataBase.getMonthByYear(year, month);
-
-  if(requestedMonth) res.status(200).json(requestedMonth);
-  else res.sendStatus(404);
-});*/
 
 module.exports = defaultRouter;

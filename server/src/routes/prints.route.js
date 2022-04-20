@@ -5,11 +5,13 @@ const path = require('path');
 
 const STATUS_CODES = require('../statusCodes');
 const dataBase = require('../dataBase');
+const { upperCaseFirstLetter, getHourFromMinutes } = require('../helper');
+
 const printsRouter = express.Router();
 
 const { authenticateToken } = require('../middlewares/auth.midlleware');
 
-printsRouter.get('/prints/:yearId/:monthId', authenticateToken, async (req, res) => {
+printsRouter.get('/download/:yearId/:monthId', authenticateToken, async (req, res) => {
     
     const { yearId, monthId } = req.params;
 
@@ -35,10 +37,6 @@ printsRouter.get('/prints/:yearId/:monthId', authenticateToken, async (req, res)
 
 });
 
-function upperCaseFirstLetter(text) {
-    return text[0].toUpperCase() + text.slice(1) ;
-}
-
 function createPDF(doc, year, month) {
     const imageSize = {
         width: 70,
@@ -60,21 +58,7 @@ function createPDF(doc, year, month) {
     };
 
     month.days.forEach(day => {
-        const newRow = [];
-
-        const date = day.index < 10 ? `0${day.index} - ${upperCaseFirstLetter(day.name)}` : `${day.index} - ${upperCaseFirstLetter(day.name)}`;
-        newRow.push(date);
-
-        if(day.extraordinary.total_minutes != 0) {
-            newRow.push(day.extraordinary.from);
-            newRow.push(day.extraordinary.to);
-            newRow.push(getHourFromMinutes(day.extraordinary.total_minutes));
-
-            if(day.extraordinary.number >= 0) newRow.push(day.extraordinary.number);
-            else newRow.push('Mezzo Turno');
-        }
-
-        dayTable.rows.push(newRow);
+        dayTable.rows.push(createNewRow(day));
     })
           
     doc.text('', 0, 200).table( dayTable );   
@@ -83,12 +67,22 @@ function createPDF(doc, year, month) {
     doc.end();
 }
 
-function getHourFromMinutes(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
+function createNewRow(day) {
+    const newRow = [];
 
-    if(h === 0 && m === 0) return '0';
-    else return `${h}:${m}`;
+    const date = day.index < 10 ? `0${day.index} - ${upperCaseFirstLetter(day.name)}` : `${day.index} - ${upperCaseFirstLetter(day.name)}`;
+    newRow.push(date);
+
+    if(day.extraordinary.total_minutes != 0) {
+        newRow.push(day.extraordinary.from);
+        newRow.push(day.extraordinary.to);
+        newRow.push(getHourFromMinutes(day.extraordinary.total_minutes));
+
+        if(day.extraordinary.number >= 0) newRow.push(day.extraordinary.number);
+        else newRow.push('Mezzo Turno');
+    }
+
+    return newRow;
 }
 
 module.exports = printsRouter;
