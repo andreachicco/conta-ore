@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const STATUS_CODES = require('../statusCodes');
-const dataBase = require('../dataBase');
+const { dbCalendar } = require('../dataBase');
 const { upperCaseFirstLetter, getHourFromMinutes } = require('../helper');
 
 const printsRouter = express.Router();
@@ -15,7 +15,7 @@ printsRouter.get('/download/:yearId/:monthId', authenticateToken, async (req, re
     
     const { yearId, monthId } = req.params;
 
-    const selectedYear = await dataBase.getYearById(yearId);
+    const selectedYear = await dbCalendar.getYearById(yearId);
 
     if(selectedYear) {
         const selectedMonth = selectedYear.year.months.find(month => month._id == monthId);

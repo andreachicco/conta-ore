@@ -1,7 +1,7 @@
 const express = require('express');
 
 const Authentication = require('../auth');
-const dataBase = require('../dataBase');
+const { dbUser } = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 
 const { checkIfAdmin } = require('../middlewares/auth.midlleware');
@@ -18,7 +18,7 @@ authRouter.post('/register', checkIfAdmin, async (req, res) => {
     };
 
     try {
-        await dataBase.insertUser(user);
+        await dbUser.insertUser(user);
         res.sendStatus(STATUS_CODES.OK);
     }
     catch(error) {

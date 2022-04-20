@@ -25,9 +25,9 @@ class DataBase {
         //Singleton Pattern
         if(!DataBase.instance) {
 
-            //const localUri = 'mongodb://127.0.0.1:27017/conta-ore-test';
-            const mongoAtlasUri = `mongodb+srv://${this.dbCredentials.username}:${this.dbCredentials.password}@cluster0.urdgj.mongodb.net/${this.dbCredentials.dbName}?retryWrites=true&w=majority`;
-            mongoose.connect(mongoAtlasUri, (err) => {
+            const localUri = 'mongodb://127.0.0.1:27017/conta-ore-test';
+            //const mongoAtlasUri = `mongodb+srv://${this.dbCredentials.username}:${this.dbCredentials.password}@cluster0.urdgj.mongodb.net/${this.dbCredentials.dbName}?retryWrites=true&w=majority`;
+            mongoose.connect(localUri, (err) => {
                 if(!err) console.log('Connessione DB riuscita');
                 else console.error('Errore connessione DB: ', err);
             });
@@ -37,13 +37,37 @@ class DataBase {
 
     }
 
+    async insertLog(log) {
+        try {
+            const newLog = new Log(log);
+            await newLog.save();
+
+            return STATUS_CODES.CREATED;
+        } catch (error) {
+            console.log(error);
+            return STATUS_CODES.BAD_REQUEST;
+        }
+    }
+}
+
+class DbUser extends DataBase {
+    constructor() {
+        super();
+    }
+
     async insertUser(user) {
-        const newUser = new User(user);
-        await newUser.save();
+        const insertedUser = new User(user);
+        await insertedUser.save();
     }
 
     async getUser(username) {
         return User.findOne({ username: username });
+    }
+}
+
+class DbCalendar extends DataBase {
+    constructor() {
+        super();
     }
 
     //Metodi per ricavare/inserire Anni
@@ -85,7 +109,7 @@ class DataBase {
 
         try {
             const selectedYear = await this.getYearById(yearId);
-    
+
             const selectedMonth = selectedYear.year.months.find(month => month._id == monthId);
             const selectedDay = selectedMonth.days.find(day => day._id == dayId);
             selectedDay.extraordinary = newShift;
@@ -140,21 +164,18 @@ class DataBase {
             return STATUS_CODES.BAD_REQUEST;
         }
     }
-
-    async insertLog(log) {
-        try {
-            const newLog = new Log(log);
-            await newLog.save();
-
-            return STATUS_CODES.CREATED;
-        } catch (error) {
-            console.log(error);
-            return STATUS_CODES.BAD_REQUEST;
-        }
-    }
 }
 
 const dataBase = new DataBase();
-Object.freeze(dataBase);
+const dbUser = new DbUser();
+const dbCalendar = new DbCalendar();
 
-module.exports = dataBase;
+Object.freeze(dataBase);
+Object.freeze(dbUser);
+Object.freeze(dbCalendar);
+
+module.exports = {
+    dataBase,
+    dbUser,
+    dbCalendar
+};

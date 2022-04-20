@@ -1,5 +1,5 @@
 const express = require('express');
-const dataBase = require('../dataBase');
+const { dbCalendar } = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 const authenticationMiddleware = require('../middlewares/auth.midlleware');
 const { getMinutesFromHours } = require('../helper');
@@ -8,7 +8,7 @@ const defaultRouter = express.Router();
 
 defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (_req, res) => {
 
-  const selected = await dataBase.getAllYears();
+  const selected = await dbCalendar.getAllYears();
   const { code, years } = selected;
 
   if(code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json(years);
@@ -18,7 +18,7 @@ defaultRouter.get(`/years`, authenticationMiddleware.authenticateToken, async (_
 defaultRouter.get(`/years/:yearId`, authenticationMiddleware.authenticateToken, async (req, res) => {
   const { yearId } = req.params;
 
-  const requestedYear = await dataBase.getYearById(yearId);
+  const requestedYear = await dbCalendar.getYearById(yearId);
 
   switch(requestedYear) {
     case STATUS_CODES.BAD_REQUEST: 
@@ -61,10 +61,10 @@ defaultRouter.patch('/years/:yearId/months/:monthId/days/:dayId', async (req, re
   
     }
     else totalMinutes = toTotalMinutes - fromTotalMinutes;
-    response = await dataBase.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: totalMinutes});
+    response = await dbCalendar.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: totalMinutes});
 
   } catch (error) {
-    response = await dataBase.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: 0});
+    response = await dbCalendar.updateDay(yearId, monthId, dayId, {...newShift, total_minutes: 0});
   }
 
   if(response.code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json({ month: response.month });

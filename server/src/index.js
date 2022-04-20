@@ -3,8 +3,6 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 
-const dataBase = require('./dataBase');
-
 const app = express()
 
 //Middlewares

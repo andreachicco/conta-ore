@@ -2,13 +2,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const STATUS_CODES = require('./statusCodes');
-const dataBase = require('./dataBase');
+const { dbUser } = require('./dataBase');
 
 class Authentication {
     
     static async verifyUser(user) {
 
-        const selectedUser = await dataBase.getUser(user.username);
+        const selectedUser = await dbUser.getUser(user.username);
 
         if(selectedUser) {
             try {

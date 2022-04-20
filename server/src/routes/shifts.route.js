@@ -1,14 +1,14 @@
 const express = require('express');
 
 const STATUS_CODES = require('../statusCodes');
-const dataBase = require('../dataBase');
+const { dbCalendar } = require('../dataBase');
 const shiftsRouter = express.Router();
 
 const { authenticateToken, checkIfAdmin } = require('../middlewares/auth.midlleware');
 
 shiftsRouter.get('/shifts', authenticateToken, async (_req, res) => {
     
-    const selected = await dataBase.getAllShifts();
+    const selected = await dbCalendar.getAllShifts();
     const { code, shifts } = selected
 
     if(code === STATUS_CODES.OK) res.status(STATUS_CODES.OK).json(shifts);
@@ -26,7 +26,7 @@ shiftsRouter.post('/shifts', checkIfAdmin, async (req, res) => {
         to: to
     };
 
-    const insertionCode = await dataBase.insertShift(newShift);
+    const insertionCode = await dbCalendar.insertShift(newShift);
 
     switch(insertionCode) {
         case STATUS_CODES.OK: 

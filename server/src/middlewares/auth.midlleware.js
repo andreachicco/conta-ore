@@ -1,5 +1,5 @@
 const Authentication = require('../auth');
-const database = require('../dataBase');
+const { dataBase, dbUser } = require('../dataBase');
 const STATUS_CODES = require('../statusCodes');
 
 const validateUser = async(req, res) => {
@@ -9,7 +9,7 @@ const validateUser = async(req, res) => {
 
     const tokenData = await Authentication.getTokenData(token);
 
-    const isValidUser = await database.getUser(tokenData);
+    const isValidUser = await dbUser.getUser(tokenData);
 
     return isValidUser;
 }
@@ -26,7 +26,7 @@ const authenticateToken = async(req, res, next) => {
             request_path: req.originalUrl
         }
 
-        await database.insertLog(newLog);
+        await dataBase.insertLog(newLog);
         
         next();
     }
