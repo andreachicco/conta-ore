@@ -17,10 +17,12 @@ app.use(morgan('tiny'));
 const authRouter = require('./routes/auth.route');
 const yearsRouter = require('./routes/years.route');
 const shiftsRouter = require('./routes/shifts.route');
+const printsRouter = require('./routes/prints.route');
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1', yearsRouter);
 app.use('/api/v1', shiftsRouter);
+app.use('/api/v1', printsRouter);
 
 app.get("/", (_req, res) => {
   res.json({

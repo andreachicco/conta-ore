@@ -18,7 +18,8 @@
     "helmet": "^5.0.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.4",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pdfkit": "^0.13.0"
   },
   "devDependencies": {
     "dotenv": "^16.0.0"
