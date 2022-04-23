@@ -1,6 +1,6 @@
 import Request from "./requests.js";
 
-import auth from "./authentication.js"
+import auth from "./auth.js"
 import apiEndpoint, { NULL_SHIFT, MID_SHIFT } from "./config.js";
 import calendar from "./calendar.js";
 let shifts = [];
@@ -311,7 +311,7 @@ function getTodayDateSelector() {
 }
 
 async function init() {
-    
+
     //Fetch degli anni presenti nel database
     const allYears = await calendar.fetchYears();
     calendar.setYears(allYears);
@@ -327,7 +327,7 @@ async function init() {
 
     setYearsInDropDownMenu();
 
-    loading.classList.add('display-none');
+    loading.classList.add('display-none');            
 }
 
 init();

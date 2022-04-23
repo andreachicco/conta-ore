@@ -1,6 +1,6 @@
 import Request from "./requests.js";
 
-import auth from "./authentication.js"
+import auth from "./auth.js"
 import apiEndpoint from "./config.js";
 
 class Calendar { 

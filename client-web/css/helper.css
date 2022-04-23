@@ -1,0 +1,39 @@
+/** COLORS **/
+
+.color-white {
+    color: white;
+}
+
+.color-light-grey {
+    background: #f2f4f5;
+}
+
+.color-dark-blue {
+    color: #214472;
+}
+
+.color-light-blue {
+    color: #8cb0df;
+}
+
+.color-light-orange {
+    color: #eea26f;
+}
+
+.color-intense-red {
+    color: #FF0000;
+}
+
+.bg-dark-blue {
+    background: #214472;
+}
+
+/** ------ **/
+
+/** FONT WEIGHT **/
+
+.bold {
+    font-weight: bold;
+}
+
+/** ----------- **/
