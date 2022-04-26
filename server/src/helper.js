@@ -6,7 +6,7 @@ function getHourFromMinutes(minutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
 
-    if(h === 0 && n === 0) return '0';
+    if(h === 0 && m === 0) return '0';
     else return `${h}:${m}`;
 }
 
